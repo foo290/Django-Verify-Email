@@ -1,6 +1,6 @@
 from django.urls import path
 from .app_configurations import GetFieldFromSettings
-from .views import verify_user_and_activate
+from .email_handler import verify_user_and_activate
 
 
 urlpatterns = [

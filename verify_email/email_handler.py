@@ -25,6 +25,18 @@ from django.utils.html import strip_tags
 from smtplib import SMTPException
 from .app_configurations import GetFieldFromSettings
 from binascii import Error as bs64
+from django.shortcuts import render, redirect, HttpResponse
+from django.contrib import messages
+from django.urls import reverse
+
+success_redirect = GetFieldFromSettings().get('verification_success_redirect')
+failed_redirect = GetFieldFromSettings().get('verification_failed_redirect')
+
+success_msg = GetFieldFromSettings().get('verification_success_msg')
+failed_msg = GetFieldFromSettings().get('verification_failed_msg')
+
+failed_template = GetFieldFromSettings().get('verification_failed_template')
+success_template = GetFieldFromSettings().get('verification_success_template')
 
 class _VerifyEmail:
     """
@@ -118,8 +130,33 @@ def send_verification_email(request, form):
 def varify_user(useremail, usertoken):
     return _UserActivationProcess().verify_token(useremail, usertoken)
 
-
-
+def verify_user_and_activate(request, useremail, usertoken):
+    """
+    verify the user's email and token and redirect'em accordingly.
+    """
+    
+    if varify_user(useremail, usertoken):
+        if success_redirect and not success_template:
+            messages.SUCCESS(request, 'Successfully Verified!')
+            return redirect(to=success_redirect)
+        return render(
+            request,
+            template_name=success_template,
+            context={
+                'msg': success_msg,
+                'status':'Verification Successfull!',
+                'link': reverse(success_redirect)
+            }
+        )
+    else:
+        return render(
+            request,
+            template_name=failed_template, 
+            context={
+                'msg': failed_msg,
+                'status':'Verification Failed!',
+            }
+        )
 
 
 
