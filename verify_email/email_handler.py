@@ -1,18 +1,3 @@
-"""
-This is the core module for:
-    1. Generating unique hashed Token for each user.
-    2. Generate a link for confirmation from client's side by /...<encoded email>/<encoded token>/.
-    3. Set the new user as inactive and saves it.
-    4. Send an email to user with specified template containing the link.
-    5. Verifies the link and token.
-    6. Destroy token and set the user's "is_active" status as True and "last_login" as timezone.now()
-
-The module contains private classes and method (starting with "_" or "__") which aren't suppose to be used outside.
-
-Only two global functions are supposed to be used outside of this module as they provide a wrap for making object and 
-calling method with params to reduce one level of extra code.
-"""
-
 from django.core.mail import BadHeaderError, send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from base64 import urlsafe_b64encode
