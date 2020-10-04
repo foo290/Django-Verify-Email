@@ -38,14 +38,16 @@ class _UserActivationProcess:
         except BASE64ERROR:
             return False
 
-        inactive_unique_user = get_user_model().objects.get(email=email)
+        inactive_users = get_user_model().objects.filter(email=email)
         try:
-            valid = default_token_generator.check_token(inactive_unique_user, token)
-            if valid:
-                self.__activate_user(inactive_unique_user)
-                return valid
-            else:
+            if inactive_users:
+                for unique_user in inactive_users:
+                    valid = default_token_generator.check_token(unique_user, token)
+                    if valid:
+                        self.__activate_user(unique_user)
+                        return valid
                 return False
+            return False
         except:
             return False
 
