@@ -2,7 +2,7 @@
 
 <h1 style='text-align:center'>Email-Verification for Django</h1>
 
-<img src='' alt='An image was supposed to be here . . .' height="200" style='display:block; margin-left:auto; margin-right:auto;'>
+<img src='https://github.com/foo290/Django-Verify-Email/blob/main/readme_imgs/django.png' alt='An image was supposed to be here . . .' height="200" style='display:block; margin-left:auto; margin-right:auto;'>
 
 Email verification for new signups or new user is a two step verification process and adds a layer for security for valid users.
 
