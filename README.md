@@ -145,12 +145,14 @@ SUBJECT = 'subject of email'
 After verification is successful, you might wanna redirect the user to login page. You can do this in two ways :
 
 * 1 Redirect from success webpage.
+	The user will be prompted to show success page with a button on it to navigate to Login page.
     ```
     LOGIN_URL = 'name of your login pattern'
 
     Note: This variable is also used by django.
     ```
 * 2 Redirect directly to login page without stopping at success message page.
+	The user will be directly sent to login page bypassing success page.
     ```
     VERIFICATION_SUCCESS_TEMPLATE = None
     ```
