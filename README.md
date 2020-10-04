@@ -11,6 +11,7 @@ Email verification for new signups or new user is a two step verification proces
 
 ## The app takes care of :
 * Settings user's is_active status to False by default.
+* Providing selected features to inactive users insteadt of not letting them sign in. (This feature is in testing and hasn't been added yet.)
 * Generate hashed token for each user.
 * Generate a verification link and sending it to user's email.
 * Recieve a request from verification link and verify for its validity.
