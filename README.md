@@ -28,7 +28,7 @@ Clone the repo and run the following command where "dist" dir is :<br>
 NOTE : Don't forget to activate virtual environment if you have one.
 
 ```
-python -m pip install dist/Django-Verify-Email-1.0.tar.gz
+python -m pip install dist/Django_Verify_Email-1.0-py3-none-any.whl
 ```
 
 
