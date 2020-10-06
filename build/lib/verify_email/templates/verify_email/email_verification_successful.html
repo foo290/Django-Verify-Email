@@ -1,0 +1,35 @@
+{% extends "email_index.html" %}
+
+{%block content%}
+
+
+<div class="container" style="height: auto;  margin-bottom: 0px; padding-bottom: 0px; border: 0px solid red;">
+
+
+    <div class="row" style="height: auto; border: 0px solid green;">
+        <div class="col" style="width: auto; border: 0px solid red;">
+            <div class="container" style="border: 0px solid; margin-top: 200px; padding-bottom: 10px;">
+                <h1 style="font-family: 'Mulish', sans-serif; text-align: center; color: white; font-size: calc(25px + 4vw);">
+                    {{status}}
+                </h1>
+            </div>
+            <hr style="background-color: white; width: 150px;">
+
+            <div class="container" style="border: 0px solid;">
+                <h1 style="font-family: 'Mulish', sans-serif; text-align: center; color: white; font-size: calc(15px + .8vw);">
+                {{msg}}
+                </h1>
+            </div>
+
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <a href="{{link}}" class="btn btn-primary" style="align-items: center; border-radius: 20px; margin-left: 10px; margin-right: 10px;">
+            Log In 
+        </a>
+    </div>
+
+</div>
+
+{%endblock%}
+
