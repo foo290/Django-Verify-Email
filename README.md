@@ -122,7 +122,7 @@ The app takes care of everything in background.
 * If the token is valid, it activates the user's account by setting is_active attribute to True and last_login to timezone.now().
 * If the token is alredy been redeemed or modified, you'll be redirected to a verification failed page.
 
-#### This whole process from generating HMAC hashed token for each user to verifying it for a unique user, is abstracted within the app which reduce hassel by a lot.
+#### This whole process from generating HMAC hashed token for each user to verifying it for a unique user, is abstracted within the app.
 
 # Advance
 
