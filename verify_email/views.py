@@ -24,7 +24,7 @@ def verify_user_and_activate(request, useremail, usertoken):
 
     if _verify_user(useremail, usertoken):
         if success_redirect and not success_template:
-            messages.SUCCESS(request, 'Successfully Verified!')
+            messages.success(request, success_msg)
             return redirect(to=success_redirect)
         return render(
             request,
@@ -44,6 +44,5 @@ def verify_user_and_activate(request, useremail, usertoken):
                 'status': 'Verification Failed!',
             }
         )
-
 
 

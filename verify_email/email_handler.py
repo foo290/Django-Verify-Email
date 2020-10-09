@@ -53,7 +53,7 @@ class _VerifyEmail:
             try:
                 send_mail(subject, strip_tags(msg), from_email=self.settings.get('from_alias'),
                           recipient_list=[useremail], html_message=msg)
-                return True
+                return inactive_user
             except (BadHeaderError, SMTPException):
                 inactive_user.delete()
                 return False
