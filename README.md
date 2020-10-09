@@ -28,7 +28,7 @@ pip install Django-Verify-Email
 ```
 
 <p id='quickstart'>
-<h2>Quick start</h2>
+<h2>Quick start</h2> <hr>
 </p>
 
 The steps to getting started is very simple. Like any other app, this can be installed easyly by adding "verify_email" in your installed apps like:
@@ -53,7 +53,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PW')
 DEFAULT_FROM_EMAIL = 'noreply<no_reply@domain.com>'
 ```
 
-## Main steps...
+## Main steps... <hr>
 
 ### Step 1 :-
 Add "verify_email" to your INSTALLED_APPS setting like this:
@@ -120,7 +120,7 @@ The user is already been saved as inactive and you don't have to .save() it expl
 
  <b>Note : </b>The app comes with default email templates which can be overriden. See <a href='#customemailtemplate'> Custom Email Templates</a>
 
-## Verifying User's email :
+# Verifying User's email : 
 
 <h3 style='text-align:center'>Nothing...</h3><br>
 
@@ -169,6 +169,66 @@ SUBJECT = 'subject of email'
 ```
 </p>
 
+## Inside Templates : <hr>
+
+### Custom HTML Message Template :
+
+<b>IMPORTANT : </b> if you are using custom html message template for email that has to be sent to user, <u>provide a <b>{{link}}</b> as a template tag to contain verification link.</u> 
+
+<b>You Must Pass This In Your Template</b> . Otherwise the sent mail will not contain the verification link.
+
+
+For Ex :
+
+```my_custom_email_message.html : ```
+
+```
+<div class="format-font" >
+    <a href="{{link}}" class="my-button" >Verify</a>  # ----> The "link" variable is passed by the app's backend containing verification link.
+</div>
+```
+
+----> "link" is a variable, that contains verification link, is passed in html message template during sending the email to user.
+
+
+### Custom HTML Verification Success and Failed pages : 
+<hr>
+
+<b>Success :</b> 
+
+Two variables are passed in context dict of "VERIFICATION_SUCCESS_TEMPLATE" :
+
+* ```{{mgs}}``` : Which contains the message to be displayed on successful verification.
+* ```{{link}}``` : Which contains redirect link to login page.
+
+<b>In template :</b>
+
+```
+<h1 style="text-align: center; color: white;">
+    {{msg}}     # __--> message variable
+</h1>
+
+<a href="{{link}}" class="btn btn-primary">     # __--> Link of login page
+    Login
+</a>
+
+```
+
+<b>Failed :</b>
+
+Only "{{msg}}" is passed for failed msg in template.
+
+
+<b>In template :</b>
+
+```
+<h1 style="text-align: center; color: white;">
+    {{msg}}
+</h1>
+```
+
+
+
 ## Successful Verification :
 After verification is successful, you might wanna redirect the user to login page. You can do this in two ways :
 
@@ -185,6 +245,8 @@ After verification is successful, you might wanna redirect the user to login pag
     VERIFICATION_SUCCESS_TEMPLATE = None
     ```
 </p>
+
+
 
 
 
