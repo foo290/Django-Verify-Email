@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="Django-Verify-Email-2",
+    name="Django-Verify-Email-3",
     version="0.0.1",
     author="Nitin",
     author_email="ns290670@gamil.com",
