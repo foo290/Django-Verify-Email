@@ -53,7 +53,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PW')
 DEFAULT_FROM_EMAIL = 'noreply<no_reply@domain.com>'
 ```
 
-## Main steps to get going...
+## Main steps...
 
 ### Step 1 :-
 Add "verify_email" to your INSTALLED_APPS setting like this:
