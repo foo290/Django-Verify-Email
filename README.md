@@ -85,7 +85,7 @@ For sending email from a signup form, in your views.py import:
 
 ```
 ...
-from verify_email.email_handler import send_verification_link
+from verify_email.email_handler import send_verification_email
 ```
 Now in the function where you are validation the form:
 
@@ -97,12 +97,12 @@ def register_user(request):
     
     if form.is_valid():
 
-        inactive_user = send_verification_link(request, form)
+        inactive_user = send_verification_email(request, form)
 ```
 
-<b>Attention : </b>"send_verification_link()" takes two arguments, requests and form in order to set user's active status. 
+<b>Attention : </b>"send_verification_email()" takes two arguments, requests and form in order to set user's active status. 
 
-The "inactive_user" is returned by "send_verification_link()" contains a saved user object just like form.save() would do.(with is_active status set as False) which you can further user to extract user information from cleaned_data dict, like :
+The "inactive_user" is returned by "send_verification_email()" contains a saved user object just like form.save() would do.(with is_active status set as False) which you can further user to extract user information from cleaned_data dict, like :
 
 ```
 inactive_user.cleaned_data['email']
