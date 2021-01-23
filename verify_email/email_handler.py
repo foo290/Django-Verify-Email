@@ -23,29 +23,30 @@ class _VerifyEmail:
     def __get_hashed_token(self, user):
         return urlsafe_b64encode(str(default_token_generator.make_token(user)).encode('utf-8')).decode('utf-8')
 
-    def __make_verification_url(self, current_site, inactive_user, useremail):
+    def __make_verification_url(self, request, inactive_user, useremail):
         token = self.__get_hashed_token(inactive_user)
         email_enc = urlsafe_b64encode(str(useremail).encode('utf-8')).decode('utf-8')
-        link = f"{current_site}/verification/user/verify-email/{email_enc}/{token}/"
-
-        return link
+        link = f"/verification/user/verify-email/{email_enc}/{token}/"
+        
+        absolute_link = request.build_absolute_uri(link)
+        
+        return absolute_link
 
     def send_verification_link(self, request, form):
         inactive_user = form.save(commit=False)
         inactive_user.is_active = False
         inactive_user.save()
+        
         try:
-            current_site = get_current_site(request)
-            try:
-                useremail = form.cleaned_data[self.settings.get('email_field_name')]
-            except:
+            useremail = form.cleaned_data.get(self.settings.get('email_field_name'))
+            if not useremail:
                 raise KeyError(
                     'No key named "email" in your form. Your field should be named as email in form OR set a variable'
                     ' "EMAIL_FIELD_NAME" with the name of current field in settings.py if you want to use current name '
                     'as email field.'
                 )
 
-            verification_url = self.__make_verification_url(current_site, inactive_user, useremail)
+            verification_url = self.__make_verification_url(request, inactive_user, useremail)
             subject = self.settings.get('subject')
             msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
                                    {"link": verification_url})
@@ -59,6 +60,7 @@ class _VerifyEmail:
                 return False
 
         except Exception as error:
+
             inactive_user.delete()
             if self.settings.get('debug_settings'):
                 raise Exception(error)
