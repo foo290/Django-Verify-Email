@@ -49,7 +49,7 @@ class _VerifyEmail:
             verification_url = self.__make_verification_url(request, inactive_user, useremail)
             subject = self.settings.get('subject')
             msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
-                                   {"link": verification_url})
+                                   {"link": verification_url}, request=request)
 
             try:
                 send_mail(subject, strip_tags(msg), from_email=self.settings.get('from_alias'),
