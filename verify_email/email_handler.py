@@ -1,5 +1,4 @@
 from django.core.mail import BadHeaderError, send_mail
-from django.contrib.sites.shortcuts import get_current_site
 from base64 import urlsafe_b64encode
 from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
@@ -7,30 +6,19 @@ from django.utils.html import strip_tags
 from smtplib import SMTPException
 from .app_configurations import GetFieldFromSettings
 
+from .token_manager import TokenManager
+
 
 class _VerifyEmail:
     """
-    This class does four things:
-    1. creates tokens for each user.
-    2. set each user as inactive and saves it
-    3. embed encoded token with encoded email to make verification link.
-    4. sends the email to user with that link.
+    This class does two things:
+    1. set each user as inactive and saves it
+    2. sends the email to user with that link.
     """
 
     def __init__(self):
         self.settings = GetFieldFromSettings()
-
-    def __get_hashed_token(self, user):
-        return urlsafe_b64encode(str(default_token_generator.make_token(user)).encode('utf-8')).decode('utf-8')
-
-    def __make_verification_url(self, request, inactive_user, useremail):
-        token = self.__get_hashed_token(inactive_user)
-        email_enc = urlsafe_b64encode(str(useremail).encode('utf-8')).decode('utf-8')
-        link = f"/verification/user/verify-email/{email_enc}/{token}/"
-        
-        absolute_link = request.build_absolute_uri(link)
-        
-        return absolute_link
+        self.token_manager = TokenManager()
 
     def send_verification_link(self, request, form):
         inactive_user = form.save(commit=False)
@@ -46,7 +34,7 @@ class _VerifyEmail:
                     'as email field.'
                 )
 
-            verification_url = self.__make_verification_url(request, inactive_user, useremail)
+            verification_url = self.token_manager.generate_link(request, inactive_user, useremail)
             subject = self.settings.get('subject')
             msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
                                    {"link": verification_url})

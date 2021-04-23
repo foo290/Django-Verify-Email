@@ -57,7 +57,8 @@ class GetFieldFromSettings:
 
             'verification_success_msg': (
                 'VERIFICATION_SUCCESS_MSG',
-                "Your Email is verified successfully and account has been activated. You can login with the credentials now..."
+                "Your Email is verified successfully and account has been activated. "
+                "You can login with the credentials now..."
             ),
 
             'verification_failed_template': (
@@ -69,6 +70,31 @@ class GetFieldFromSettings:
                 'VERIFICATION_FAILED_MSG',
                 "There is something wrong with this link, can't verify the user..."
             ),
+
+            'salt': (
+                'HASH_SALT',
+                None
+            ),
+
+            'algo': (
+                'ALGORITHM',
+                None
+            ),
+
+            'sep': (
+                'SEPARATOR',
+                ':'
+            ),
+
+            'key': (
+                'HASHING_KEY',
+                None
+            ),
+
+            'max_age': (
+                'EXPIRE_AFTER',
+                None
+            )
         }
 
     def get(self, field_name, raise_exception=True, default_type=str):

@@ -3,6 +3,8 @@ from binascii import Error as BASE64ERROR
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
+from .token_manager import TokenManager
+
 
 
 class _UserActivationProcess:
@@ -11,7 +13,7 @@ class _UserActivationProcess:
     """
 
     def __init__(self):
-        pass
+        self.token_manager = TokenManager()
 
     def __activate_user(self, user):
         user.is_active = True
@@ -20,9 +22,8 @@ class _UserActivationProcess:
 
     def verify_token(self, useremail, usertoken):
         try:
-            email = urlsafe_b64decode(useremail).decode('utf-8')
-            token = urlsafe_b64decode(usertoken).decode('utf-8')
-        except BASE64ERROR:
+            email, token = self.token_manager.decrypt_link(useremail, usertoken)
+        except (ValueError, TypeError):
             return False
 
         inactive_users = get_user_model().objects.filter(email=email)
