@@ -68,7 +68,7 @@ class _VerifyEmail:
         email = self.token_manager.perform_decoding(encoded_email)
         if link:
             msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
-                                   {"link": link})
+                                   {"link": link}, request=request)
             try:
                 self.__send_email(msg, email)
                 return True
