@@ -1,3 +1,12 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
-# Create your models here.
+USER = get_user_model()
+
+
+class LinkCounter(models.Model):
+    requester = models.OneToOneField(USER, on_delete=models.CASCADE)
+    sent_count = models.IntegerField()
+
+    def __str__(self):
+        return self.requester.username

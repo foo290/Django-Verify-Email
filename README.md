@@ -60,7 +60,7 @@ Add "verify_email" to your INSTALLED_APPS setting like this:
 ```
     INSTALLED_APPS = [
         ...
-        "verify_email",
+        "verify_email.apps.VerifyEmailConfig",
     ]
 ```
 <p id="step2">
@@ -79,8 +79,20 @@ urlpatterns = [
 ```
 </p>
 
+<p id="step3">
+<h3>Step 3 :-</h3>
 
-### Step 3 :-
+Apply migrations...
+
+
+```
+python manage.py migrate
+```
+</p>
+
+
+
+### Step 4 :-
 For sending email from a signup form, in your views.py import:
 
 ```
@@ -146,6 +158,45 @@ That's right ! , you don't have to impliment any other code for validating user 
 <p id="advance">
 
 <h1>Advance</h1>
+
+<p id="link-expiring">
+<h2>Expiration of link and Resending emails :</h2>
+
+The link by default do not expires until its been used atleast once, But you can **change** this behaviour by specifying the time as
+"EXPIRE_AFTER" in settings.py. The variable can be set as :
+* By default the time is considered in seconds, so if you set "EXPIRE_AFTER" as integer, that will be considered in seconds.
+* You can specify time unit for large times, max unit is days.
+* **Its very simple** just suffix the "EXPIRE_AFTER" variable's value with a time unit from ["s", "m", "h", "d"]. (Keep in mind, the "m" here is minutes, not month)
+
+**Example**
+
+* If i have to make a link expire after **one day**, then i"d do:
+    * EXPIRE_AFTER = "1d"
+
+* If i have to make a link expire after **one hour**, then i"d do:
+    * EXPIRE_AFTER = "1h"
+    
+* If i have to make a link expire after **one minute**, then i"d do:
+    * EXPIRE_AFTER = "1m"
+
+and so on... By default, if you do not specify a unit, it'll be considered as seconds.
+
+</p>
+
+<p id="resending-email">
+<h2>Re-Sending Email</h2>
+
+
+A user can request new verification link **For a specific no. of times** in case of the previous one has expired. By default a user can request
+new link **two times** which, obviously can be modified by you.
+
+Set a "MAX_RETRIES" variable in settings.py specifying the no. of times a user is allowed to request new link.
+
+After that no. is exceeded, the user will be automatically redired on an error page showing that you have maxed out.
+
+
+**NOTE :** This info is stored in database so you have to apply migrations (<a href='#step3'>step 3</a>) to use this feature. 
+</p>
 
 <p id="customemailtemplate">
 

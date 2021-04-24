@@ -5,7 +5,7 @@
 
 <div class="container" style="height: auto;  margin-bottom: 0px; padding-bottom: 0px; border: 0px solid red;">
 
-        
+
     <div class="row" style="height: auto; border: 0px solid green;">
         <div class="col" style="width: auto; border: 0px solid red;">
             <div class="container" style="border: 0px solid; margin-top: 200px; padding-bottom: 10px;">
@@ -17,18 +17,24 @@
 
             <div class="container" style="border: 0px solid;">
                 <h1 style="font-family: 'Mulish', sans-serif; text-align: center; color: white; font-size: calc(15px + 1.5vw);">
-                    {{msg}}
+                    Link Expired!
                 </h1>
             </div>
 
             <div class="mt-5">
                 <h1 style="font-family: 'Mulish', sans-serif; text-align: center; color: white; font-size: calc(15px + .5vw);">
-                    {{ minor_msg }}
+                    The link has lived its life :( Can not validate a dead link...
                 </h1>
             </div>
         </div>
     </div>
+
+    <div class="row justify-content-center">
+        <a href="{% url 'request-new-link' encoded_email encoded_token %}" class="btn btn-primary"
+           style="align-items: center; border-radius: 20px; margin-left: 10px; margin-right: 10px;">
+            Request Another one
+        </a>
+    </div>
 </div>
 
-{%endblock%}
-
+{% endblock %}

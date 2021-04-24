@@ -1,0 +1,14 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import LinkCounter, USER
+
+
+@receiver(post_save, sender=USER)
+def increase_count(sender, instance, created, **kwargs):
+    if created:
+        LinkCounter.objects.create(requester=instance, sent_count=1)
+
+
+@receiver(post_save, sender=USER)
+def save_count(sender, instance, **kwargs):
+    instance.linkcounter.save()
