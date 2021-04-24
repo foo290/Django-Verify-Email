@@ -1,6 +1,4 @@
 from django.core.mail import BadHeaderError, send_mail
-from base64 import urlsafe_b64encode
-from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from smtplib import SMTPException
@@ -20,11 +18,22 @@ class _VerifyEmail:
         self.settings = GetFieldFromSettings()
         self.token_manager = TokenManager()
 
+    # Private :
+    def __send_email(self, msg, useremail):
+        subject = self.settings.get('subject')
+        try:
+            send_mail(subject, strip_tags(msg), from_email=self.settings.get('from_alias'),
+                      recipient_list=[useremail], html_message=msg)
+            return True
+        except (BadHeaderError, SMTPException):
+            return False
+
+    # Public :
     def send_verification_link(self, request, form):
         inactive_user = form.save(commit=False)
         inactive_user.is_active = False
         inactive_user.save()
-        
+
         try:
             useremail = form.cleaned_data.get(self.settings.get('email_field_name'))
             if not useremail:
@@ -35,17 +44,13 @@ class _VerifyEmail:
                 )
 
             verification_url = self.token_manager.generate_link(request, inactive_user, useremail)
-            subject = self.settings.get('subject')
             msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
                                    {"link": verification_url})
 
-            try:
-                send_mail(subject, strip_tags(msg), from_email=self.settings.get('from_alias'),
-                          recipient_list=[useremail], html_message=msg)
+            if self.__send_email(msg, useremail):
                 return inactive_user
-            except (BadHeaderError, SMTPException):
-                inactive_user.delete()
-                return False
+            inactive_user.delete()
+            return False
 
         except Exception as error:
 
@@ -53,7 +58,31 @@ class _VerifyEmail:
             if self.settings.get('debug_settings'):
                 raise Exception(error)
 
+    def resend_verification_link(self, request, encoded_email, encoded_token):
+        """
+        This method needs the previously sent link to get encoded email and token from that.
+        """
+        assert encoded_email is not None
+        assert encoded_token is not None
+        link = self.token_manager.request_new_link(request, encoded_email, encoded_token)
+        email = self.token_manager.perform_decoding(encoded_email)
+        if link:
+            msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
+                                   {"link": link})
+            try:
+                self.__send_email(msg, email)
+                return True
+            except (BadHeaderError, SMTPException):
+                return False
+        else:
+            return link
+
 
 #  These is supposed to be called outside of this module
 def send_verification_email(request, form):
     return _VerifyEmail().send_verification_link(request, form)
+
+
+#  These is supposed to be called outside of this module
+def resend_verification_email(request, encoded_email, encoded_token):
+    return _VerifyEmail().resend_verification_link(request, encoded_email, encoded_token)

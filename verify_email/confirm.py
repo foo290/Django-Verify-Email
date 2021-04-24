@@ -1,10 +1,6 @@
-from base64 import urlsafe_b64decode
-from binascii import Error as BASE64ERROR
-from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.contrib.auth.tokens import default_token_generator
-from .token_manager import TokenManager
-
+from .token_manager import TokenManager, error_type, MaxRetriesExceeded
+from django.core.signing import SignatureExpired, BadSignature
 
 
 class _UserActivationProcess:
@@ -15,29 +11,27 @@ class _UserActivationProcess:
     def __init__(self):
         self.token_manager = TokenManager()
 
-    def __activate_user(self, user):
+    @staticmethod
+    def __activate_user(user):
         user.is_active = True
         user.last_login = timezone.now()
         user.save()
 
     def verify_token(self, useremail, usertoken):
         try:
-            email, token = self.token_manager.decrypt_link(useremail, usertoken)
+            user = self.token_manager.decrypt_link(useremail, usertoken)
+            if user:
+                self.__activate_user(user)
+                return True
+            return False
         except (ValueError, TypeError):
-            return False
-
-        inactive_users = get_user_model().objects.filter(email=email)
-        try:
-            if inactive_users:
-                for unique_user in inactive_users:
-                    valid = default_token_generator.check_token(unique_user, token)
-                    if valid:
-                        self.__activate_user(unique_user)
-                        return valid
-                return False
-            return False
-        except:
-            return False
+            return error_type.failed
+        except SignatureExpired:
+            return error_type.expired
+        except BadSignature:
+            return error_type.tempered
+        except MaxRetriesExceeded:
+            return error_type.mre
 
 
 def _verify_user(useremail, usertoken):

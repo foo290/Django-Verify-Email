@@ -66,6 +66,11 @@ class GetFieldFromSettings:
                 'verify_email/email_verification_failed.html'
             ),
 
+            'link_expired_template': (
+                'LINK_EXPIRED_TEMPLATE',
+                'verify_email/link_expired.html'
+            ),
+
             'verification_failed_msg': (
                 'VERIFICATION_FAILED_MSG',
                 "There is something wrong with this link, can't verify the user..."
@@ -73,11 +78,6 @@ class GetFieldFromSettings:
 
             'salt': (
                 'HASH_SALT',
-                None
-            ),
-
-            'algo': (
-                'ALGORITHM',
                 None
             ),
 
@@ -94,6 +94,11 @@ class GetFieldFromSettings:
             'max_age': (
                 'EXPIRE_AFTER',
                 None
+            ),
+
+            'max_retries': (
+                'MAX_RETRIES',
+                2
             )
         }
 
