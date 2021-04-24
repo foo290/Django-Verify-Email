@@ -224,6 +224,11 @@ SUBJECT = 'subject of email'
 
 ### Custom HTML Message Template :
 
+Two variables are passed in context dict of "HTML_MESSAGE_TEMPLATE" :
+
+* ```{{request}}``` : Which is the same request passed in to send_verification_email.
+* ```{{link}}``` : Which contains verification link
+
 <b>IMPORTANT : </b> if you are using custom html message template for email that has to be sent to user, <u>provide a <b>{{link}}</b> as a template tag to contain verification link.</u> 
 
 <b>You Must Pass This In Your Template</b> . Otherwise the sent mail will not contain the verification link.
