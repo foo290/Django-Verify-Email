@@ -11,4 +11,7 @@ def increase_count(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=USER)
 def save_count(sender, instance, **kwargs):
-    instance.linkcounter.save()
+    try:
+        instance.linkcounter.save()
+    except Exception as err:
+        print(err)
