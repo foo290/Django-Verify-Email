@@ -16,7 +16,7 @@ Email verification for new signups or new user is a two step verification proces
 ## What you have to impliment is :
 * Three steps in <a href='#quickstart'>Quick start</a> below...
 
-<b>Note : </b>The app is designed to be used right of the bat, but further customizations options are also provided in <a href="#advance">Advance</a> section below.
+<b>Note : </b>The app is designed to be used right of the bat, however, further customizations options are also provided in <a href="#advance">Advance</a> section below.
 
 
 ## Installation
@@ -31,7 +31,7 @@ pip install Django-Verify-Email
 <h2>Quick start</h2> <hr>
 </p>
 
-The steps to getting started is very simple. Like any other app, this can be installed easyly by adding "verify_email" in your installed apps like:
+The steps to getting started is very simple. Like any other app, this can be installed easily by adding "verify_email" in your installed apps like:
 
 <b>Note : </b>This documentation assumes that you already have a mail server configured for your project to send mails. 
 
@@ -114,14 +114,14 @@ def register_user(request):
 
 <b>Attention : </b>"send_verification_email()" takes two arguments, requests and form in order to set user's active status. 
 
-The "inactive_user" is returned by "send_verification_email()" contains a saved user object just like form.save() would do.(with is_active status set as False) which you can further user to extract user information from cleaned_data dict, like :
+The "inactive_user" that is returned by "send_verification_email()" contains a saved user object just like form.save() would do(with is_active status set as False), which you can further use to extract user information from cleaned_data dictionary, as shown below :
 
 ```
 inactive_user.cleaned_data['email']
 
 # Output : test-user123@gmail.com
 ```
-The user is already been saved as inactive and you don't have to .save() it explicitly.
+The user is already being saved as inactive and you don't have to .save() it explicitly.
 
 <b>If anything goes wrong in sending the verification link email, the user will not be saved, so that user can try again.</b>
 
@@ -149,7 +149,7 @@ That's right ! , you don't have to impliment any other code for validating user 
 * It then checks for user by that email.
 * If user exist, it then checks for token if it is valid for that user or not.
 * If the token is valid, it activates the user's account by setting is_active attribute to True and last_login to timezone.now().
-* If the token is alredy been redeemed or modified, you'll be redirected to a verification failed page.
+* If the token is alredy been redeemed or modified, you'll be redirected to a "verification failed" page.
 
 #### This whole process from generating HMAC hashed token for each user to verifying it for a unique user, is abstracted within the app 😃.
 
@@ -162,7 +162,7 @@ That's right ! , you don't have to impliment any other code for validating user 
 <p id="link-expiring">
 <h2>Expiration of link and Resending emails :</h2>
 
-The link by default do not expires until its been used atleast once, But you can **change** this behaviour by specifying the time as
+The link, by default, does not expire until it has been used atleast once, however, you can **change** this behaviour by specifying the time as
 "EXPIRE_AFTER" in settings.py. The variable can be set as :
 * By default the time is considered in seconds, so if you set "EXPIRE_AFTER" as integer, that will be considered in seconds.
 * You can specify time unit for large times, max unit is days.
@@ -170,16 +170,16 @@ The link by default do not expires until its been used atleast once, But you can
 
 **Example**
 
-* If i have to make a link expire after **one day**, then i"d do:
+* If I have to make a link expire after **one day**, then I'd do:
     * EXPIRE_AFTER = "1d"
 
-* If i have to make a link expire after **one hour**, then i"d do:
+* If I have to make a link expire after **one hour**, then I'd do:
     * EXPIRE_AFTER = "1h"
     
-* If i have to make a link expire after **one minute**, then i"d do:
+* If I have to make a link expire after **one minute**, then I'd do:
     * EXPIRE_AFTER = "1m"
 
-and so on... By default, if you do not specify a unit, it'll be considered as seconds.
+and so on... By default, if you do not specify a unit, it'll be considered in seconds.
 
 </p>
 
@@ -187,12 +187,12 @@ and so on... By default, if you do not specify a unit, it'll be considered as se
 <h2>Re-Sending Email</h2>
 
 
-A user can request new verification link **For a specific no. of times** in case of the previous one has expired. By default a user can request
+A user can request new verification link **For a specific no. of times** in case the previous one has expired. By default, a user can request
 new link **two times** which, obviously can be modified by you.
 
 Set a "MAX_RETRIES" variable in settings.py specifying the no. of times a user is allowed to request new link.
 
-After that no. is exceeded, the user will be automatically redired on an error page showing that you have maxed out.
+After that no. is exceeded, the user will be automatically redirected on an error page showing that you have maxed out.
 
 
 **NOTE :** This info is stored in database so you have to apply migrations (<a href='#step3'>step 3</a>) to use this feature. 
@@ -244,7 +244,7 @@ For Ex :
 </div>
 ```
 
-----> "link" is a variable, that contains verification link, is passed in html message template during sending the email to user.
+----> "link" is a variable, that contains verification link, and is passed in html message template during sending the email to user.
 
 
 ### Custom HTML Verification Success and Failed pages : 
@@ -252,7 +252,7 @@ For Ex :
 
 <b>Success :</b> 
 
-Two variables are passed in context dict of "VERIFICATION_SUCCESS_TEMPLATE" :
+Two variables are passed in context dictionary of "VERIFICATION_SUCCESS_TEMPLATE" :
 
 * ```{{mgs}}``` : Which contains the message to be displayed on successful verification.
 * ```{{link}}``` : Which contains redirect link to login page.
@@ -286,7 +286,7 @@ Only "{{msg}}" is passed for failed msg in template.
 
 
 ## Successful Verification :
-After verification is successful, you might wanna redirect the user to login page. You can do this in two ways :
+After verification is successful, you might want to redirect the user to login page. You can do this in two ways :
 
 * 1 <b>Redirect from success webpage.</b>
 	The user will be prompted to show success page with a button on it to navigate to Login page.
@@ -296,7 +296,7 @@ After verification is successful, you might wanna redirect the user to login pag
     Note: This variable is also used by django.
     ```
 * 2 <b>Redirect directly to login page without stopping at success message page.</b>
-	The user will be directly sent to login page bypassing success page.
+	The user will be directly sent to login page, bypassing the success page.
     ```
     VERIFICATION_SUCCESS_TEMPLATE = None
     ```
