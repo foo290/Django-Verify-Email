@@ -99,7 +99,7 @@ For sending email from a signup form, in your views.py import:
 ...
 from verify_email.email_handler import send_verification_email
 ```
-Now in the function where you are validation the form:
+Now in the function where you are validating the form:
 
 ```
 ...
