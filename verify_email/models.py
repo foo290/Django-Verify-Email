@@ -9,4 +9,4 @@ class LinkCounter(models.Model):
     sent_count = models.IntegerField()
 
     def __str__(self):
-        return self.requester.username
+        return str(self.requester.username)
