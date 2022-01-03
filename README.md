@@ -13,7 +13,7 @@ Email verification for new signups or new user is a two step verification proces
 * Recieve a request from verification link and verify for its validity.
 * Activating the user's account.
 
-## What you have to impliment is :
+## What you have to implement is :
 * Three steps in <a href='#quickstart'>Quick start</a> below...
 
 <b>Note : </b>The app is designed to be used right of the bat, however, further customizations options are also provided in <a href="#advance">Advance</a> section below.
@@ -136,7 +136,7 @@ The user is already being saved as inactive and you don't have to .save() it exp
 
 <h3 style='text-align:center'>Nothing...</h3><br>
 
-That's right ! , you don't have to impliment any other code for validating user with their respective unique tokens and emails. 
+That's right ! , you don't have to implement any other code for validating user with their respective unique tokens and emails. 
 
 <b>The app takes care of everything in background.</b>
 
