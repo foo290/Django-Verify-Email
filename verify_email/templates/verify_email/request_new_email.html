@@ -1,0 +1,38 @@
+{% extends "email_index.html" %}
+
+{%block content%}
+
+<div class="container" 
+    style="
+    height: auto;
+    margin-bottom: 0px; 
+    margin-top: 100px;
+    padding: 100px; 
+    border: 0px solid red;
+    background-color: rgb(255, 255, 255);
+    border-radius: 20px;
+    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+    
+    ">
+    <div class="container mt-5">
+        <h2 style="margin-bottom: 20px;">Request New Email for Verification</h2>
+        <hr>
+        <form method='POST' >
+            {% csrf_token %}
+    
+            <fieldset>
+                {{form}}
+            </fieldset>
+    
+            <div style="margin-top: 50px;">
+                <button class="btn btn-outline-info" type="submit">Request New Email</button>
+            </div>
+        </form>
+    
+        <div class="border-top pt-3 mt-3">
+            <small>Usually this template needs to be changed by your own app's template</small>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

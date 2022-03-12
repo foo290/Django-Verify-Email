@@ -1,11 +1,18 @@
 from django.utils import timezone
-from .token_manager import TokenManager, error_type, MaxRetriesExceeded
-from django.core.signing import SignatureExpired, BadSignature
+from .token_manager import TokenManager
 
 
 class _UserActivationProcess:
     """
     This class is pretty self.explanatory...
+    Exceptions Raised
+    ------------------
+        - MaxRetriesExceeded    (by) verify_user()
+        - BadSignature          (by) verify_user()
+        - SignatureExpired      (by) verify_user()
+        - ValueError            (by) verify_user()
+        - TypeError             (by) verify_user()
+        - InvalidToken          (by) verify_user()
     """
 
     def __init__(self):
@@ -18,21 +25,12 @@ class _UserActivationProcess:
         user.save()
 
     def verify_token(self, useremail, usertoken):
-        try:
-            user = self.token_manager.decrypt_link(useremail, usertoken)
-            if user:
-                self.__activate_user(user)
-                return True
-            return False
-        except (ValueError, TypeError):
-            return error_type.failed
-        except SignatureExpired:
-            return error_type.expired
-        except BadSignature:
-            return error_type.tempered
-        except MaxRetriesExceeded:
-            return error_type.mre
+        user = self.token_manager.decrypt_link(useremail, usertoken)
+        if user:
+            self.__activate_user(user)
+            return True
+        return False
 
 
-def _verify_user(useremail, usertoken):
+def verify_user(useremail, usertoken):
     return _UserActivationProcess().verify_token(useremail, usertoken)
