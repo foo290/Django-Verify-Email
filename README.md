@@ -38,7 +38,7 @@ Read about this feature <a href='#resending-email-using-form'>here</a>
 * Recieve a request from the verification link and verify for its validity.
 * Activating the user's account.
 
-## What you have to impliment is :
+## What you have to implement is :
 * Three steps in <a href='#quickstart'>Quick start</a> below...
 
 <b>Note : </b>The app is designed to be used right of the bat, however, further customizations options are also provided in <a href="#advance">Advance</a> section below.
