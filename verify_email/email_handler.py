@@ -2,8 +2,9 @@ from django.core.mail import BadHeaderError, send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from smtplib import SMTPException
-from .app_configurations import GetFieldFromSettings
 
+from .app_configurations import GetFieldFromSettings
+from .errors import InvalidTokenOrEmail
 from .token_manager import TokenManager
 
 
@@ -25,7 +26,13 @@ class _VerifyEmail:
             send_mail(subject, strip_tags(msg), from_email=self.settings.get('from_alias'),
                       recipient_list=[useremail], html_message=msg)
             return True
-        except (BadHeaderError, SMTPException):
+        except (BadHeaderError, SMTPException) as e:
+            error_code, error_msg, *_ = list(e.args) + [None, None]  # to avoid "unpacking" error just in case
+            print(
+                f"\n{'-' * 60}\nError in sending email.\n"
+                f"Error code: {error_code}\n"
+                f"Error: {error_msg}\n{'-' * 60}\n"
+            )
             return False
 
     # Public :
@@ -58,17 +65,36 @@ class _VerifyEmail:
             if self.settings.get('debug_settings'):
                 raise Exception(error)
 
-    def resend_verification_link(self, request, encoded_email, encoded_token):
+    def resend_verification_link(self, request, email, **kwargs):
         """
         This method needs the previously sent link to get encoded email and token from that.
+        Exceptions Raised
+        -----------------
+            - UserAlreadyActive (by) get_user_by_token()
+            - MaxRetryExceeded  (by) request_new_link()
+            - InvalidTokenOrEmail
+        
+        These exception should be handled in caller function.
         """
-        assert encoded_email is not None
-        assert encoded_token is not None
-        link = self.token_manager.request_new_link(request, encoded_email, encoded_token)
-        email = self.token_manager.perform_decoding(encoded_email)
+        inactive_user = kwargs.get('user')
+        user_encoded_token = kwargs.get('token')
+        encoded = kwargs.get('encoded', True)
+
+        if encoded:
+            decoded_encrypted_user_token = self.token_manager.perform_decoding(user_encoded_token)
+            email = self.token_manager.perform_decoding(email)
+            inactive_user = self.token_manager.get_user_by_token(email, decoded_encrypted_user_token)
+
+        if not inactive_user or not email:
+            raise InvalidTokenOrEmail(f'Either token or email is invalid. user: {inactive_user}, email: {email}')
+
+        # At this point, we have decoded email(if it was encoded), and inactive_user, and we can request new link
+        link = self.token_manager.request_new_link(request, inactive_user, email)
         if link:
-            msg = render_to_string(self.settings.get('html_message_template', raise_exception=True),
-                                   {"link": link}, request=request)
+            msg = render_to_string(
+                self.settings.get('html_message_template', raise_exception=True),
+                {"link": link}, request=request
+            )
             try:
                 self.__send_email(msg, email)
                 return True
@@ -84,5 +110,5 @@ def send_verification_email(request, form):
 
 
 #  These is supposed to be called outside of this module
-def resend_verification_email(request, encoded_email, encoded_token):
-    return _VerifyEmail().resend_verification_link(request, encoded_email, encoded_token)
+def resend_verification_email(request, email, **kwargs):
+    return _VerifyEmail().resend_verification_link(request, email, **kwargs)

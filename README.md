@@ -6,6 +6,31 @@ Email verification for new signups or new user is a two step verification proces
 
 <b> verify_email </b> is a django app that provides this functionality right of the bat without any complex implementation.
 
+<hr>
+
+## Version Update (2.0.0):
+
+<hr>
+
+> This version contains breaking changes and is not compatible with previous version 1.0.9
+
+### What's in this update
+**Features:**
+* Added feature for **re-requesting email** in case previous email lost or deleted by mistake
+* Added a variable `REQUEST_NEW_EMAIL_TEMPLATE` where user can specify his custom template for requesting email again. More on this <a href='#resending-email-using-form'>here</a>.
+* Added a django form for requesting email with a field `email`.
+
+Read about this feature <a href='#resending-email-using-form'>here</a>
+
+**Bug Fixes:**
+* Fixed a bug where user was not able to request new email using previous link in case if link expires.
+ 
+ **Others**
+ * Using exceptions instead of normal string errors
+ * code cleanup
+
+<hr><hr>
+
 ## The app takes care of :
 * Settings user's is_active status to False.
 * Generate hashed token for each user.
@@ -161,8 +186,13 @@ That's right ! , you don't have to impliment any other code for validating user 
 
 <p id="link-expiring">
 <h2>Expiration of link and Resending emails :</h2>
+If you want your link to be expire after a certain amount of time, you can use signed links, <b>All you have to do is just set a variable in settings.py file and BAMM! you got yourself a link which will expire after specified time.</b><br>
+Its that simple, just setting a variable. <br><br>
+If you dont set this variable, the link will expire after used atleast once. 
+<br>
 
-The link, by default, does not expire until it has been used atleast once, however, you can **change** this behaviour by specifying the time as
+The link, by default, does not expire until it has been used atleast once, however, you can 
+**change** this behaviour by specifying the time as
 "EXPIRE_AFTER" in settings.py. The variable can be set as :
 * By default the time is considered in seconds, so if you set "EXPIRE_AFTER" as integer, that will be considered in seconds.
 * You can specify time unit for large times, max unit is days.
@@ -171,21 +201,20 @@ The link, by default, does not expire until it has been used atleast once, howev
 **Example**
 
 * If I have to make a link expire after **one day**, then I'd do:
-    * EXPIRE_AFTER = "1d"
+    * EXPIRE_AFTER = "1d"  # Will expire after one day from link generation
 
 * If I have to make a link expire after **one hour**, then I'd do:
-    * EXPIRE_AFTER = "1h"
+    * EXPIRE_AFTER = "1h"  # Will expire after one hour from link generation
     
 * If I have to make a link expire after **one minute**, then I'd do:
-    * EXPIRE_AFTER = "1m"
+    * EXPIRE_AFTER = "1m"  # Will expire after 1 minute from link generation
 
-and so on... By default, if you do not specify a unit, it'll be considered in seconds.
-
+**Note:** By default, if you do not specify a unit, it'll be considered in seconds.
 </p>
 
 <p id="resending-email">
-<h2>Re-Sending Email</h2>
-
+<h2>Re-Sending Email</h2> <hr>
+</p>
 
 A user can request new verification link **For a specific no. of times** in case the previous one has expired. By default, a user can request
 new link **two times** which, obviously can be modified by you.
@@ -193,6 +222,59 @@ new link **two times** which, obviously can be modified by you.
 Set a "MAX_RETRIES" variable in settings.py specifying the no. of times a user is allowed to request new link.
 
 After that no. is exceeded, the user will be automatically redirected on an error page showing that you have maxed out.
+
+<p id="resending-email-using-link">
+<h2>Re-Sending Email using previous link</h2> 
+</p>
+When the link expires, the user will be redirected to a page displaying that the link is expired and has a button to request a new email, now as long as user hasn't exceeded max retries, user can request new email simply by clicking on that button.
+
+<p id='resending-email-using-form'>
+<h2>Resend Email using Email Form</h2> 
+</p>
+
+In case when previous email/link is lost ore deleted by client, they can request a new email by specifying their email.
+
+The path for that is `https://yourdomain/verification/user/verify-email/request-new-link/`, at this path, there will be a form which will ask for the email of registered user.
+
+The path name is `request-new-link-from-email` which you can use to create a button on your front end and redirect traffic to request email page.
+Something like:
+
+```html
+<a href="{% url 'request-new-link-from-token' %}">
+```
+
+This will redirect you to full path `/verification/user/verify-email/request-new-link/`
+
+There are several checks done before sending email again:
+* if the email is registered and user's account is not been activated
+* user haven't exceeded max retry limit(set by you),
+
+Then a new email will be sent on the given email.
+
+The form template is supposed to be changed uless you are oky with the default template provided with package.
+
+To set your own custom template for form, set a variable name `REQUEST_NEW_EMAIL_TEMPLATE` in settings.py with the path of template you want to use. Example:
+```py
+REQUEST_NEW_EMAIL_TEMPLATE = 'mytemplates/mycustomtemplate.html'
+```
+and then your template will be displayed at the path.
+
+**Making Form:** while making your custom template, keep in mind that the view will pass a variable named `form` to the provided themplate, this form will contain only 1 field `email`. Sample code that you can use while making your template is here:
+
+```html
+<form method='POST' >
+            {% csrf_token %}
+    
+            <fieldset>
+                {{form}}
+            </fieldset>
+    
+            <div style="margin-top: 50px;">
+                <button class="btn btn-outline-info" type="submit">Request New Email</button>
+            </div>
+</form>
+```
+You can apply your styles or whatever you want. (this code is used in default tenplate)
 
 
 **NOTE :** This info is stored in database so you have to apply migrations (<a href='#step3'>step 3</a>) to use this feature. 
@@ -202,8 +284,6 @@ After that no. is exceeded, the user will be automatically redirected on an erro
 
 <h2>Custom Email Templates : </h2>
 
-
-
 The app is packed with default html templates to handle the web pages but if you want to provide your own template you can do it by setting an attribute in settings.py :
 
 ```
@@ -212,6 +292,10 @@ HTML_MESSAGE_TEMPLATE = "path/to/html_template.html"
 VERIFICATION_SUCCESS_TEMPLATE = "path/to/success.html"
 
 VERIFICATION_FAILED_TEMPLATE = "path/to/failed.html"
+
+REQUEST_NEW_EMAIL_TEMPLATE = "path/to/email.html"
+
+LINK_EXPIRED_TEMPLATE = 'path/to/expired.html'
 ```
 ```
 SUBJECT = 'subject of email'
@@ -303,6 +387,6 @@ After verification is successful, you might want to redirect the user to login p
 </p>
 
 
-
+> There is always room for improvements and new ideas, feel free to raise PR or Issues
 
 
