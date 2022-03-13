@@ -240,7 +240,7 @@ The pathname is `request-new-link-from-email` which you can use to create a butt
 Something like:
 
 ```html
-<a href="{% url 'request-new-link-from-token' %}">
+<a href="{% url 'request-new-link-from-email' %}">
 ```
 
 This will redirect you to full path `/verification/user/verify-email/request-new-link/`
