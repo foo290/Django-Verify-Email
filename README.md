@@ -296,6 +296,8 @@ VERIFICATION_FAILED_TEMPLATE = "path/to/failed.html"
 REQUEST_NEW_EMAIL_TEMPLATE = "path/to/email.html"
 
 LINK_EXPIRED_TEMPLATE = 'path/to/expired.html'
+
+DISPLAY_MESSAGE = 'path/to/display_message.html'
 ```
 ```
 SUBJECT = 'subject of email'
