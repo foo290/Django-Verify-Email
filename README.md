@@ -297,7 +297,7 @@ REQUEST_NEW_EMAIL_TEMPLATE = "path/to/email.html"
 
 LINK_EXPIRED_TEMPLATE = 'path/to/expired.html'
 
-DISPLAY_MESSAGE = 'path/to/display_message.html'
+NEW_EMAIL_SENT_TEMPLATE  = 'path/to/new_email_sent.html'
 ```
 ```
 SUBJECT = 'subject of email'

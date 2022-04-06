@@ -28,7 +28,8 @@ failed_template = pkg_configs.get('verification_failed_template')
 success_template = pkg_configs.get('verification_success_template')
 link_expired_template = pkg_configs.get('link_expired_template')
 request_new_email_template = pkg_configs.get('request_new_email_template')
-display_message = pkg_configs.get('display_message')
+new_email_sent_template = pkg_configs.get('new_email_sent_template')
+
 
 def verify_user_and_activate(request, useremail, usertoken):
     """
@@ -129,7 +130,7 @@ def request_new_link(request, useremail=None, usertoken=None):
                         if status:
                             return render(
                                 request,
-                                template_name=display_message,
+                                template_name=new_email_sent_template,
                                 context={
                                     'msg': "You have requested another verification email!",
                                     'minor_msg': 'Your verification link has been sent',
@@ -152,7 +153,7 @@ def request_new_link(request, useremail=None, usertoken=None):
         if status:
             return render(
                 request,
-                template_name=display_message,
+                template_name=new_email_sent_template,
                 context={
                     'msg': "You have requested another verification email!",
                     'minor_msg': 'Your verification link has been sent',
