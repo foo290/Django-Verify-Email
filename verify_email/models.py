@@ -9,4 +9,8 @@ class LinkCounter(models.Model):
     sent_count = models.IntegerField()
 
     def __str__(self):
-        return str(self.requester.username)
+        return str(self.requester.get_username())
+
+    def __repr__(self):
+        return str(self.requester.get_username())
+
