@@ -166,13 +166,14 @@ def request_new_link(request, useremail=None, usertoken=None):
     except ObjectDoesNotExist as error:
         messages.warning(request, 'User not found associated with given email!')
         print(f'[ERROR]: User not found. exception: {error}')
+        return HttpResponse(b"User Not Found", status=404)
 
     except MultipleObjectsReturned as error:
         print(f'[ERROR]: Multiple users found. exception: {error}')
         return HttpResponse(b"Internal server error!", status=500)
 
     except KeyError as error:
-        print('[ERROR]: Key error for email in your form')
+        print(f'[ERROR]: Key error for email in your form: {error}')
         return HttpResponse(b"Internal server error!", status=500)
 
     except MaxRetriesExceeded as error:
@@ -195,11 +196,11 @@ def request_new_link(request, useremail=None, usertoken=None):
             }
         )
     except UserAlreadyActive:
-            return render(
-                request,
-                template_name=failed_template,
-                context={
-                    'msg': "This user's account is already active",
-                    'status': 'Already Verified!',
-                }
-            )
+        return render(
+            request,
+            template_name=failed_template,
+            context={
+                'msg': "This user's account is already active",
+                'status': 'Already Verified!',
+            }
+        )
