@@ -58,7 +58,7 @@ def verify_user_and_activate(request, useremail, usertoken):
             # we dont know what went wrong...
             raise ValueError
     except (ValueError, TypeError) as error:
-        print(f'[ERROR]: Something went wrong while verifying user, exceprtion: {error}')
+        print(f'[ERROR]: Something went wrong while verifying user, exception: {error}')
         return render(
             request,
             template_name=failed_template,
@@ -111,9 +111,9 @@ def verify_user_and_activate(request, useremail, usertoken):
         return HttpResponse("404 User not found", status=404)
 
 
-def request_new_link(request, useremail=None, usertoken=None):
+def request_new_link(request, user_email=None, user_token=None):
     try:
-        if useremail is None or usertoken is None:
+        if user_email is None or user_token is None:
             # request came from re-request email page
             if request.method == 'POST':
                 form = RequestNewVerificationEmail(request.POST)  # do not inflate data
@@ -148,7 +148,7 @@ def request_new_link(request, useremail=None, usertoken=None):
             )
         else:
             # request came from  previously sent link
-            status = resend_verification_email(request, useremail, token=usertoken)
+            status = resend_verification_email(request, user_email, token=user_token)
 
         if status:
             return render(
