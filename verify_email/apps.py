@@ -5,5 +5,5 @@ class VerifyEmailConfig(AppConfig):
     name = 'verify_email'
 
     def ready(self):
-        print('importing signals')
+        print('[Email Verification] : importing signals    - OK.')
         import verify_email.signals
