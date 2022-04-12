@@ -79,6 +79,10 @@ class GetFieldFromSettings:
                 'REQUEST_NEW_EMAIL_TEMPLATE',
                 'verify_email/request_new_email.html'
             ),
+            'new_email_sent_template': (
+                'NEW_EMAIL_SENT_TEMPLATE',
+                'verify_email/new_email_sent.html'
+            ),
 
             'salt': (
                 'HASH_SALT',
