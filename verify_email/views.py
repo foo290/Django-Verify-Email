@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from .app_configurations import GetFieldFromSettings
 from .confirm import verify_user
 from django.urls import reverse
@@ -108,7 +108,7 @@ def verify_user_and_activate(request, useremail, usertoken):
             }
         )
     except UserNotFound:
-        return HttpResponse("404 User not found", status=404)
+        raise Http404("404 User not found")
 
 
 def request_new_link(request, user_email=None, user_token=None):
