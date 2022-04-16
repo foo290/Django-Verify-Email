@@ -1,3 +1,4 @@
+import logging
 from django.http import HttpResponse
 from .app_configurations import GetFieldFromSettings
 from .confirm import verify_user
@@ -16,6 +17,8 @@ from .errors import (
     UserAlreadyActive,
     UserNotFound,
 )
+
+logger = logging.getLogger(__name__)
 
 pkg_configs = GetFieldFromSettings()
 
@@ -58,7 +61,7 @@ def verify_user_and_activate(request, useremail, usertoken):
             # we dont know what went wrong...
             raise ValueError
     except (ValueError, TypeError) as error:
-        print(f'[ERROR]: Something went wrong while verifying user, exception: {error}')
+        logger.error(f'[ERROR]: Something went wrong while verifying user, exception: {error}')
         return render(
             request,
             template_name=failed_template,
@@ -138,7 +141,7 @@ def request_new_link(request, user_email=None, user_token=None):
                                 }
                             )
                         else:
-                            print('something went wrong during sending email')
+                            logger.error('something went wrong during sending email')
             else:
                 form = RequestNewVerificationEmail()
             return render(
@@ -162,23 +165,23 @@ def request_new_link(request, user_email=None, user_token=None):
             )
         else:
             messages.info(request, 'Something went wrong during sending email :(')
-            print('something went wrong during sending email')
+            logger.error('something went wrong during sending email')
 
     except ObjectDoesNotExist as error:
         messages.warning(request, 'User not found associated with given email!')
-        print(f'[ERROR]: User not found. exception: {error}')
+        logger.error(f'[ERROR]: User not found. exception: {error}')
         return HttpResponse(b"User Not Found", status=404)
 
     except MultipleObjectsReturned as error:
-        print(f'[ERROR]: Multiple users found. exception: {error}')
+        logger.error(f'[ERROR]: Multiple users found. exception: {error}')
         return HttpResponse(b"Internal server error!", status=500)
 
     except KeyError as error:
-        print(f'[ERROR]: Key error for email in your form: {error}')
+        logger.error(f'[ERROR]: Key error for email in your form: {error}')
         return HttpResponse(b"Internal server error!", status=500)
 
     except MaxRetriesExceeded as error:
-        print(f'[ERROR]: Maximum retries for link has been reached. exception: {error}')
+        logger.error(f'[ERROR]: Maximum retries for link has been reached. exception: {error}')
         return render(
             request,
             template_name=failed_template,
