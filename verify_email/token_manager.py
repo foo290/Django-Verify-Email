@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from django.core import signing
 from binascii import Error as BASE64ERROR
@@ -12,6 +13,7 @@ __all__ = [
     "TokenManager"
 ]
 
+logger = logging.getLogger(__name__)
 
 class TokenManager(signing.TimestampSigner):
     """
@@ -98,7 +100,7 @@ class TokenManager(signing.TimestampSigner):
         try:
             return int(user.linkcounter.sent_count)
         except Exception as e:
-            print(e)
+            logger.error(e)
             return False
 
     @staticmethod
@@ -217,18 +219,18 @@ class TokenManager(signing.TimestampSigner):
                     return False
 
                 except signing.SignatureExpired:
-                    print(f'\n{"~" * 40}\n[ERROR] : The link is Expired!\n{"~" * 40}\n')
+                    logger.warning(f'\n{"~" * 40}\n[WARNING] : The link is Expired!\n{"~" * 40}\n')
                     user = self.get_user_by_token(decoded_email, self.__decrypt_expired_user(decoded_token))
                     if not self.__verify_attempts(user):
                         raise MaxRetriesExceeded()
                     raise
 
                 except signing.BadSignature:
-                    print(f'\n{"~" * 40}\n[CRITICAL] : X_x --> CAUTION : LINK SIGNATURE ALTERED! <-- x_X\n{"~" * 40}\n')
+                    logger.critical(f'\n{"~" * 40}\n[CRITICAL] : X_x --> CAUTION : LINK SIGNATURE ALTERED! <-- x_X\n{"~" * 40}\n')
                     raise
             else:
                 user = self.get_user_by_token(decoded_email, decoded_token)
                 return user if user else False
         else:
-            print(f'\n{"~" * 40}\n[ERROR] : Error occurred in decoding the link!\n{"~" * 40}\n')
+            logger.error(f'\n{"~" * 40}\n[ERROR] : Error occurred in decoding the link!\n{"~" * 40}\n')
             return False
