@@ -1,8 +1,9 @@
 import logging
 from datetime import timedelta
-from django.core import signing
 from binascii import Error as BASE64ERROR
 from base64 import urlsafe_b64encode, urlsafe_b64decode
+
+from django.core import signing
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 
@@ -14,6 +15,7 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+
 
 class TokenManager(signing.TimestampSigner):
     """
@@ -226,11 +228,13 @@ class TokenManager(signing.TimestampSigner):
                     raise
 
                 except signing.BadSignature:
-                    logger.critical(f'\n{"~" * 40}\n[CRITICAL] : X_x --> CAUTION : LINK SIGNATURE ALTERED! <-- x_X\n{"~" * 40}\n')
+                    logger.critical(
+                        f'\n{"~" * 40}\n[CRITICAL] : X_x --> CAUTION : LINK SIGNATURE ALTERED! <-- x_X\n{"~" * 40}\n'
+                    )
                     raise
             else:
                 user = self.get_user_by_token(decoded_email, decoded_token)
                 return user if user else False
         else:
-            logger.error(f'\n{"~" * 40}\n[ERROR] : Error occurred in decoding the link!\n{"~" * 40}\n')
+            logger.error(f'\n{"~" * 40}\nError occurred in decoding the link!\n{"~" * 40}\n')
             return False

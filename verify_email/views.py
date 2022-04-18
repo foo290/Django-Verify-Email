@@ -1,7 +1,6 @@
-from django.http import Http404, HttpResponse
 import logging
-from .app_configurations import GetFieldFromSettings
-from .confirm import verify_user
+
+from django.http import Http404, HttpResponse
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
@@ -9,6 +8,8 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.signing import SignatureExpired, BadSignature
 
+from .app_configurations import GetFieldFromSettings
+from .confirm import verify_user
 from .email_handler import resend_verification_email
 from .forms import RequestNewVerificationEmail
 from .errors import (
@@ -114,9 +115,9 @@ def verify_user_and_activate(request, useremail, usertoken):
         raise Http404("404 User not found")
 
 
-def request_new_link(request, user_email=None, user_token=None):
+def request_new_link(request, useremail=None, usertoken=None):
     try:
-        if user_email is None or user_token is None:
+        if useremail is None or usertoken is None:
             # request came from re-request email page
             if request.method == 'POST':
                 form = RequestNewVerificationEmail(request.POST)  # do not inflate data
@@ -151,7 +152,7 @@ def request_new_link(request, user_email=None, user_token=None):
             )
         else:
             # request came from  previously sent link
-            status = resend_verification_email(request, user_email, token=user_token)
+            status = resend_verification_email(request, useremail, token=usertoken)
 
         if status:
             return render(
