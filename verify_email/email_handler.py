@@ -38,7 +38,7 @@ class _VerifyEmail:
 
         try:
             
-            useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else user.email
+            useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else inactive_user.email
             if not useremail:
                 raise KeyError(
                     'No key named "email" in your form. Your field should be named as email in form OR set a variable'
