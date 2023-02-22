@@ -28,13 +28,17 @@ class _VerifyEmail:
         )
 
     # Public :
-    def send_verification_link(self, request, form):
-        inactive_user = form.save(commit=False)
+    def send_verification_link(self, request, inactive_user=None, form=None):
+        
+        if form:
+            inactive_user = form.save(commit=False)
+        
         inactive_user.is_active = False
         inactive_user.save()
 
         try:
-            useremail = form.cleaned_data.get(self.settings.get('email_field_name'))
+            
+            useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else inactive_user.email
             if not useremail:
                 raise KeyError(
                     'No key named "email" in your form. Your field should be named as email in form OR set a variable'
