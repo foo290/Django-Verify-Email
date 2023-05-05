@@ -85,7 +85,7 @@ class GetFieldFromSettings:
             ),
 
             'verification_template': (
-                'NEW_EMAIL_SENT_TEMPLATE',
+                'VERIFICATION_TEMPLATE',
                 'verify_email/verification_template.html'
             ),
 
