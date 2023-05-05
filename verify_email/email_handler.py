@@ -28,7 +28,7 @@ class _VerifyEmail:
         )
 
     # Public :
-    def send_verification_link(self, request, inactive_user=None, form=None):
+    def send_verification_link(self, request, form=None):
         
         if form:
             inactive_user = form.save(commit=False)

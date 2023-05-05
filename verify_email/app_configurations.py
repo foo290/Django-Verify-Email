@@ -84,6 +84,12 @@ class GetFieldFromSettings:
                 'verify_email/new_email_sent.html'
             ),
 
+            'verification_template': (
+                'VERIFICATION_TEMPLATE',
+                'verify_email/verification_template.html'
+            ),
+
+
             'salt': (
                 'HASH_SALT',
                 None
