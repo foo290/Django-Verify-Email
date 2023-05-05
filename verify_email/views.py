@@ -115,9 +115,7 @@ def verify_user_and_activate(request, useremail, usertoken):
             except UserNotFound:
                 raise Http404("404 User not found")
     if request.method == 'POST':
-        form = request.POST
-        if form.is_valid():
-            verify_button_clicked(request, useremail, usertoken)
+        verify_button_clicked(request, useremail, usertoken)
     else:
         return render(request, template_name=verify_template)
 
