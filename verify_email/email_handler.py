@@ -95,7 +95,7 @@ class _VerifyEmail:
 
 #  These is supposed to be called outside of this module
 def send_verification_email(request, form):
-    return _VerifyEmail().send_verification_link(request, form)
+    return _VerifyEmail().send_verification_link(request, form=form)
 
 
 #  These is supposed to be called outside of this module
