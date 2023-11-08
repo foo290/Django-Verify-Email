@@ -289,6 +289,8 @@ The app is packed with default HTML templates to handle the web pages but if you
 ```
 HTML_MESSAGE_TEMPLATE = "path/to/html_template.html"
 
+EMAIL_VERIFICATION_SUBJECT_TEMPLATE = "path/to/subject.txt"
+
 VERIFICATION_SUCCESS_TEMPLATE = "path/to/success.html"
 
 VERIFICATION_FAILED_TEMPLATE = "path/to/failed.html"
@@ -298,11 +300,6 @@ REQUEST_NEW_EMAIL_TEMPLATE = "path/to/email.html"
 LINK_EXPIRED_TEMPLATE = 'path/to/expired.html'
 
 NEW_EMAIL_SENT_TEMPLATE  = 'path/to/new_email_sent.html'
-```
-```
-SUBJECT = 'subject of email'
-
-# default subject is: Email Verification Mail
 ```
 </p>
 

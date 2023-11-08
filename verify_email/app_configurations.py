@@ -25,9 +25,9 @@ class GetFieldFromSettings:
                 False
             ),
 
-            'subject': (
-                "SUBJECT",
-                "Email Verification Mail"
+            'email_verification_subject_template': (
+                "EMAIL_VERIFICATION_SUBJECT_TEMPLATE",
+                "verify_email/email_verification_subject.txt"
             ),
 
             'email_field_name': (
