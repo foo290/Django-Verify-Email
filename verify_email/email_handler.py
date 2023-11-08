@@ -19,13 +19,18 @@ class _VerifyEmail:
         self.token_manager = TokenManager()
 
     # Private :
-    def __send_email(self, msg, useremail):
-        subject = self.settings.get('subject')
+    def __send_email(self, subject, msg, useremail):
         send_mail(
             subject, strip_tags(msg),
             from_email=self.settings.get('from_alias'),
             recipient_list=[useremail], html_message=msg
         )
+
+    def __get_subject(self, request):
+        subject_template_name = self.settings.get('email_verification_subject_template')
+        subject = render_to_string(subject_template_name, dict(), request=request)
+        # Email subject *must not* contain newlines
+        return "".join(subject.splitlines())
 
     # Public :
     def send_verification_link(self, request, inactive_user=None, form=None):
@@ -52,8 +57,9 @@ class _VerifyEmail:
                 {"link": verification_url, "inactive_user": inactive_user}, 
                 request=request
             )
+            subject = self.__get_subject(request)
 
-            self.__send_email(msg, useremail)
+            self.__send_email(subject, msg, useremail)
             return inactive_user
         except Exception:
             inactive_user.delete()
@@ -88,7 +94,9 @@ class _VerifyEmail:
             self.settings.get('html_message_template', raise_exception=True),
             {"link": link}, request=request
         )
-        self.__send_email(msg, email)
+        subject = self.__get_subject(request)
+
+        self.__send_email(subject, msg, email)
         return True
 
 
