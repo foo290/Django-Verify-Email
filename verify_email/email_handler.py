@@ -29,15 +29,15 @@ class _VerifyEmail:
 
     # Public :
     def send_verification_link(self, request, inactive_user=None, form=None):
-        
+
         if form:
             inactive_user = form.save(commit=False)
-        
+
         inactive_user.is_active = False
         inactive_user.save()
 
         try:
-            
+
             useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else inactive_user.email
             if not useremail:
                 raise KeyError(
@@ -49,7 +49,7 @@ class _VerifyEmail:
             verification_url = self.token_manager.generate_link(request, inactive_user, useremail)
             msg = render_to_string(
                 self.settings.get('html_message_template', raise_exception=True),
-                {"link": verification_url, "inactive_user": inactive_user}, 
+                {"link": verification_url, "inactive_user": inactive_user},
                 request=request
             )
 
@@ -67,7 +67,7 @@ class _VerifyEmail:
             - UserAlreadyActive (by) get_user_by_token()
             - MaxRetryExceeded  (by) request_new_link()
             - InvalidTokenOrEmail
-        
+
         These exception should be handled in caller function.
         """
         inactive_user = kwargs.get('user')
@@ -94,7 +94,7 @@ class _VerifyEmail:
 
 
 #  These is supposed to be called outside of this module
-def send_verification_email(request, form):
+def send_verification_email(request, **kwargs):
     return _VerifyEmail().send_verification_link(request, form)
 
 
