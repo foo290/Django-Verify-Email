@@ -42,6 +42,9 @@ def verify_user_and_activate(request, useremail, usertoken):
 
     verify the user's email and token and redirect'em accordingly.
     """
+    if request.method == 'HEAD':
+        return HttpResponse("Ok")
+        
     if request.method == 'GET':
         try:
             verified = verify_user(useremail, usertoken)
