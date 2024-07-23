@@ -20,37 +20,45 @@ class _VerifyEmail:
 
     # Private :
     def __send_email(self, msg, useremail):
-        subject = self.settings.get('subject')
+        subject = self.settings.get("subject")
         send_mail(
-            subject, strip_tags(msg),
-            from_email=self.settings.get('from_alias'),
-            recipient_list=[useremail], html_message=msg
+            subject,
+            strip_tags(msg),
+            from_email=self.settings.get("from_alias"),
+            recipient_list=[useremail],
+            html_message=msg,
         )
 
     # Public :
     def send_verification_link(self, request, inactive_user=None, form=None):
-        
+
         if form:
             inactive_user = form.save(commit=False)
-        
+
         inactive_user.is_active = False
         inactive_user.save()
 
         try:
-            
-            useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else inactive_user.email
+
+            useremail = (
+                form.cleaned_data.get(self.settings.get("email_field_name"))
+                if form
+                else inactive_user.email
+            )
             if not useremail:
                 raise KeyError(
                     'No key named "email" in your form. Your field should be named as email in form OR set a variable'
                     ' "EMAIL_FIELD_NAME" with the name of current field in settings.py if you want to use current name '
-                    'as email field.'
+                    "as email field."
                 )
 
-            verification_url = self.token_manager.generate_link(request, inactive_user, useremail)
+            verification_url = self.token_manager.generate_link(
+                request, inactive_user, useremail
+            )
             msg = render_to_string(
-                self.settings.get('html_message_template', raise_exception=True),
-                {"link": verification_url, "inactive_user": inactive_user}, 
-                request=request
+                self.settings.get("html_message_template", raise_exception=True),
+                {"link": verification_url, "inactive_user": inactive_user},
+                request=request,
             )
 
             self.__send_email(msg, useremail)
@@ -67,35 +75,46 @@ class _VerifyEmail:
             - UserAlreadyActive (by) get_user_by_token()
             - MaxRetryExceeded  (by) request_new_link()
             - InvalidTokenOrEmail
-        
+
         These exception should be handled in caller function.
         """
-        inactive_user = kwargs.get('user')
-        user_encoded_token = kwargs.get('token')
-        encoded = kwargs.get('encoded', True)
+        inactive_user = kwargs.get("user")
+        user_encoded_token = kwargs.get("token")
+        encoded = kwargs.get("encoded", True)
 
         if encoded:
-            decoded_encrypted_user_token = self.token_manager.perform_decoding(user_encoded_token)
+            decoded_encrypted_user_token = self.token_manager.perform_decoding(
+                user_encoded_token
+            )
             email = self.token_manager.perform_decoding(email)
-            inactive_user = self.token_manager.get_user_by_token(email, decoded_encrypted_user_token)
+            inactive_user = self.token_manager.get_user_by_token(
+                email, decoded_encrypted_user_token
+            )
 
         if not inactive_user or not email:
-            raise InvalidTokenOrEmail(f'Either token or email is invalid. user: {inactive_user}, email: {email}')
+            raise InvalidTokenOrEmail(
+                f"Either token or email is invalid. user: {inactive_user}, email: {email}"
+            )
 
         # At this point, we have decoded email(if it was encoded), and inactive_user, and we can request new link
         link = self.token_manager.request_new_link(request, inactive_user, email)
         msg = render_to_string(
-            self.settings.get('html_message_template', raise_exception=True),
-            {"link": link}, request=request
+            self.settings.get("html_message_template", raise_exception=True),
+            {"link": link},
+            request=request,
         )
         self.__send_email(msg, email)
         return True
 
 
-
 #  These is supposed to be called outside of this module
-def send_verification_email(request, form):
-    return _VerifyEmail().send_verification_link(request, form)
+def send_verification_email(request, form=None, user=None):
+    if form is not None:
+        return _VerifyEmail().send_verification_link(request, form)
+    elif user is not None:
+        return _VerifyEmail().send_verification_link(request, user)
+    else:
+        raise ValueError("Either form or user must be provided")
 
 
 #  These is supposed to be called outside of this module
