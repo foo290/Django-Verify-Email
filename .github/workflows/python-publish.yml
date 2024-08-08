@@ -1,7 +1,13 @@
 
 name: Upload Python Package to PyPi
 
-on: [push]
+on: 
+  push:
+    branches: []
+    tags-ignore: []
+
+  release:
+    types: [prereleased, published]
 
 jobs:
   deploy:
@@ -22,6 +28,7 @@ jobs:
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_SECRET_TOKEN }}
+        PYPI_REPO: ${{ github.event_name  == 'push' && '--repository testpypi' || '' }}
       run: |
         python setup.py sdist bdist_wheel
-        twine upload --skip-existing dist/*
+        twine upload $PYPI_REPO --skip-existing dist/*
