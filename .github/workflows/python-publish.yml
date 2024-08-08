@@ -27,7 +27,7 @@ jobs:
     - name: Build and publish
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_SECRET_TOKEN }}
+        TWINE_PASSWORD: ${{ github.event_name  == 'push' && secrets.TEST_PYPI_SECRET_TOKEN || secrets.PYPI_SECRET_TOKEN }}
         PYPI_REPO: ${{ github.event_name  == 'push' && '--repository testpypi' || '' }}
       run: |
         python setup.py sdist bdist_wheel
