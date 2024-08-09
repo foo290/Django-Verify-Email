@@ -19,16 +19,20 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.6'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine
-    - name: Build and publish
+        python3 -m pip install --upgrade build
+    - name: Build package
+      run: python -m build
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
       env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ github.event_name  == 'push' && secrets.TEST_PYPI_SECRET_TOKEN || secrets.PYPI_SECRET_TOKEN }}
-        PYPI_REPO: ${{ github.event_name  == 'push' && '--repository testpypi' || '' }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload $PYPI_REPO --skip-existing dist/*
+        name: ${{ github.event_name  == 'push' && 'testpypi' || 'pypi' }}
+        url: ${{ github.event_name  == 'push' && 'https://test.pypi.org/p/' || 'https://pypi.org/project/' }}Django-Verify-Email
+      with:
+        user: __token__
+        password: ${{ github.event_name  == 'push' && secrets.TEST_PYPI_SECRET_TOKEN || secrets.PYPI_SECRET_TOKEN }}
+        repository-url: ${{ github.event_name  == 'push' && 'https://test.pypi.org/legacy/' || 'https://pypi.org/legacy/' }}
+

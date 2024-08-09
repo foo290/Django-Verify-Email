@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-email-validation"
+version = "2.0.4"
+#dynamic = ["version"]
+authors = [
+	{ name="Nitin Sharma", email="ns290670@gamil.com"}
+  { name="Olivier LEVILLAIN", email="levillain.olivier@gmail.com" },
+]
+description = " A Django app for email verification."
+readme = "README.md"
+requires-python = ">=3.6"
+dependencies=["binascii", "django"]
+classifiers = [
+	"Environment :: Web Environment",
+	"Framework :: Django CMS :: 3.8",
+	"Intended Audience :: Developers",
+	"Programming Language :: Python :: 3.6",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent"
+]
+
+keywords = ["email", "validation", "check"]
+
+[project.urls]
+Homepage = "https://github.com/foo290/Django-Verify-Email/"
+Repository = "https://github.com/foo290/Django-Verify-Email.git"
+Issues = "https://github.com/foo290/Django-Verify-Email//issues"
+Download = "https://github.com/foo290/Django-Verify-Email/archive/refs/tags/2.0.4.tar.gz"
