@@ -31,5 +31,5 @@ Repository = "https://github.com/foo290/Django-Verify-Email.git"
 Issues = "https://github.com/foo290/Django-Verify-Email//issues"
 Download = "https://github.com/foo290/Django-Verify-Email/archive/refs/tags/2.0.4.tar.gz"
 
-[tool hatch.build.targets.wheel]
+[tool.hatch.build.targets.wheel]
 packages = ["src/verify_email"]
