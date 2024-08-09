@@ -1,9 +1,9 @@
-[build-system]
+I'll[build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "django-email-validation"
+name = "Django-Verify-Email"
 version = "2.0.4"
 #dynamic = ["version"]
 authors = [
@@ -30,3 +30,6 @@ Homepage = "https://github.com/foo290/Django-Verify-Email/"
 Repository = "https://github.com/foo290/Django-Verify-Email.git"
 Issues = "https://github.com/foo290/Django-Verify-Email//issues"
 Download = "https://github.com/foo290/Django-Verify-Email/archive/refs/tags/2.0.4.tar.gz"
+
+[tool hatch.build.targets.wheel]
+packages = ["src/verify_email"]
