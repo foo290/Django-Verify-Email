@@ -1,7 +1,13 @@
 
-name: Upload Python Package
+name: Upload Python Package to PyPi
 
-on: [push]
+on: 
+  push:
+    branches: []
+    tags-ignore: []
+
+  release:
+    types: [prereleased, published]
 
 jobs:
   deploy:
@@ -9,19 +15,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        python-version: '3.8'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine
-    - name: Build and publish
+        python3 -m pip install --upgrade build
+    - name: Build package
+      run: python -m build
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
       env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload --skip-existing dist/*
+        name: ${{ github.event_name  == 'push' && 'testpypi' || 'pypi' }}
+        url: ${{ github.event_name  == 'push' && 'https://test.pypi.org/p/' || 'https://pypi.org/project/' }}Django-Verify-Email
+      with:
+        user: __token__
+        password: ${{ github.event_name  == 'push' && secrets.TEST_PYPI_SECRET_TOKEN || secrets.PYPI_SECRET_TOKEN }}
+        repository-url: ${{ github.event_name  == 'push' && 'https://test.pypi.org/legacy/' || 'https://pypi.org/legacy/' }}
+

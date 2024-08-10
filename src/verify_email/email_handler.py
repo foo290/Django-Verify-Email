@@ -28,16 +28,20 @@ class _VerifyEmail:
         )
 
     # Public :
-    def send_verification_link(self, request, inactive_user=None, form=None):
-        
+    def send_verification_link(self, request, form=None, inactive_user=None):
+
+        if not form and not inactive_user:
+            raise ValueError('Either form or inactive_user must be provided')
+        elif form and inactive_user:
+            raise ValueError('Either form or inactive_user must be provided')
         if form:
             inactive_user = form.save(commit=False)
-        
+
         inactive_user.is_active = False
         inactive_user.save()
 
         try:
-            
+
             useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else inactive_user.email
             if not useremail:
                 raise KeyError(
@@ -67,7 +71,7 @@ class _VerifyEmail:
             - UserAlreadyActive (by) get_user_by_token()
             - MaxRetryExceeded  (by) request_new_link()
             - InvalidTokenOrEmail
-        
+
         These exception should be handled in caller function.
         """
         inactive_user = kwargs.get('user')
@@ -92,10 +96,9 @@ class _VerifyEmail:
         return True
 
 
-
 #  These is supposed to be called outside of this module
-def send_verification_email(request, form):
-    return _VerifyEmail().send_verification_link(request, form)
+def send_verification_email(request, form=None, inactive_user=None):
+    return _VerifyEmail().send_verification_link(request, form, inactive_user)
 
 
 #  These is supposed to be called outside of this module

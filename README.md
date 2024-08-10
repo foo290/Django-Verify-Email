@@ -1,16 +1,43 @@
 
 
-<h1 style='text-align:center'>Email-Verification for Django</h1>
+# Email Verification for Django
 
 Email verification for new signups or new users is a two-step verification process and adds a layer for security for valid users.
 
-<b> verify_email </b> is a django app that provides this functionality right of the bat without any complex implementation.
+**verify_email** is a django app that provides this functionality right of the bat without any complex implementation.
 
-<hr>
+## Version Update (2.0.4)
+#### Bug fixes
+* Solves incompatibility with Django 5.1 (exception when initializing the TokenManager)
+* Fixes implementation of sending verification without a form (initial PR by )
+
+#### Enhancements
+* Verification emails can now be sent without a form if a user has already been created (eg when an admin wants to activate an inactive user) (Inspired by other PRs which were buggy, see above)
+* Modernized the Python packaging (removed warnings on build)
+* Use of GITHUB TOKEN to build
+
+## Version Update (v2.0.3)
+
+#### Bug Fixes:
+* Variable name in view function was different than the one passed in URL
+
+#### Enhancement:
+* Raising Http404 instead of returning 404 with a string so we can have the default 404 page
+* Using python's logging system instead of print statements
+
+
+## Version Update (2.0.2):
+#### Bug Fixes:
+* Using normal form instead of model forms to allow unique emails to re-request verification email
+* Not returning HTTP response in one of the exception blocks
+
+#### Enhancements:
+* Added new settings variable NEW_EMAIL_SENT_TEMPLATE to configure template shown after successful email sent.
+* Using get_username() method to account for apps that have changed the USERNAME_FIELD of their user model
+* migrations updated according to Django 4.x
+
 
 ## Version Update (2.0.0):
-
-<hr>
 
 > This version contains breaking changes and is not compatible with the previous version 1.0.9
 
@@ -29,7 +56,7 @@ Read about this feature <a href='#resending-email-using-form'>here</a>
  * Using exceptions instead of normal string errors
  * code cleanup
 
-<hr><hr>
+<hr>
 
 ## The app takes care of :
 * Settings user's is_active status to False.
