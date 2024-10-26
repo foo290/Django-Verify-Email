@@ -1,6 +1,10 @@
+from dataclasses import dataclass
+
 from django.conf import settings
+from verify_email.interface import DefaultConfig
 
 
+@dataclass
 class GetFieldFromSettings:
     """
     This class fetches the attributes that are defined in settings.py of your project by user OR Django itself.
@@ -17,106 +21,65 @@ class GetFieldFromSettings:
                 returns the default value from "self.defaults_configs".
     """
 
-    def __init__(self):
-
+    def __post_init__(self):
         self.defaults_configs = {
-            'debug_settings': (
-                'DEBUG',
-                False
+            'debug_settings': DefaultConfig(setting_field="DEBUG", default_value=False),
+            'subject': DefaultConfig(setting_field="SUBJECT", default_value="Email Verification Mail"),
+            'email_field_name': DefaultConfig(setting_field="EMAIL_FIELD_NAME", default_value="email"),
+            'html_message_template': DefaultConfig(
+                setting_field="HTML_MESSAGE_TEMPLATE",
+                default_value="verify_email/email_verification_msg.html"
             ),
-
-            'subject': (
-                "SUBJECT",
-                "Email Verification Mail"
+            'from_alias': DefaultConfig(
+                setting_field="DEFAULT_FROM_EMAIL",
+                default_value="noreply<noreply@gmail.com>"
             ),
-
-            'email_field_name': (
-                "EMAIL_FIELD_NAME",
-                "email",
+            'login_page': DefaultConfig(setting_field="LOGIN_URL", default_value="accounts_login"),
+            'verification_success_template': DefaultConfig(
+                setting_field="VERIFICATION_SUCCESS_TEMPLATE",
+                default_value="verify_email/email_verification_successful.html"
             ),
-
-            'html_message_template': (
-                "HTML_MESSAGE_TEMPLATE",
-                'verify_email/email_verification_msg.html'
+            'verification_success_msg': DefaultConfig(
+                setting_field="VERIFICATION_SUCCESS_MSG",
+                default_value=(
+                    "Your Email is verified successfully and account has been activated."
+                    " You can login with the credentials now..."
+                )
             ),
-
-            'from_alias': (
-                "DEFAULT_FROM_EMAIL",
-                'noreply<noreply@gmail.com>',
+            'verification_failed_template': DefaultConfig(
+                setting_field="VERIFICATION_FAILED_TEMPLATE",
+                default_value="verify_email/email_verification_failed.html"
             ),
-
-            'login_page': (
-                'LOGIN_URL',
-                'accounts_login'
+            'link_expired_template': DefaultConfig(
+                setting_field="LINK_EXPIRED_TEMPLATE",
+                default_value="verify_email/link_expired.html"
             ),
-
-            'verification_success_template': (
-                'VERIFICATION_SUCCESS_TEMPLATE',
-                'verify_email/email_verification_successful.html'
+            'verification_failed_msg': DefaultConfig(
+                setting_field="VERIFICATION_FAILED_MSG",
+                default_value="There is something wrong with this link, can't verify the user..."
             ),
-
-            'verification_success_msg': (
-                'VERIFICATION_SUCCESS_MSG',
-                "Your Email is verified successfully and account has been activated. "
-                "You can login with the credentials now..."
+            'request_new_email_template': DefaultConfig(
+                setting_field="REQUEST_NEW_EMAIL_TEMPLATE",
+                default_value="verify_email/request_new_email.html"
             ),
-
-            'verification_failed_template': (
-                'VERIFICATION_FAILED_TEMPLATE',
-                'verify_email/email_verification_failed.html'
+            'new_email_sent_template': DefaultConfig(
+                setting_field="NEW_EMAIL_SENT_TEMPLATE",
+                default_value="verify_email/new_email_sent.html"
             ),
-
-            'link_expired_template': (
-                'LINK_EXPIRED_TEMPLATE',
-                'verify_email/link_expired.html'
-            ),
-
-            'verification_failed_msg': (
-                'VERIFICATION_FAILED_MSG',
-                "There is something wrong with this link, can't verify the user..."
-            ),
-            'request_new_email_template': (
-                'REQUEST_NEW_EMAIL_TEMPLATE',
-                'verify_email/request_new_email.html'
-            ),
-            'new_email_sent_template': (
-                'NEW_EMAIL_SENT_TEMPLATE',
-                'verify_email/new_email_sent.html'
-            ),
-
-            'salt': (
-                'HASH_SALT',
-                None
-            ),
-
-            'sep': (
-                'SEPARATOR',
-                ':'
-            ),
-
-            'key': (
-                'HASHING_KEY',
-                None
-            ),
-
-            'max_age': (
-                'EXPIRE_AFTER',
-                None
-            ),
-
-            'max_retries': (
-                'MAX_RETRIES',
-                2
-            )
+            'salt': DefaultConfig(setting_field="HASH_SALT", default_value=None),
+            'sep': DefaultConfig(setting_field="SEPARATOR", default_value=":"),
+            'key': DefaultConfig(setting_field="HASHING_KEY", default_value=None),
+            'max_age': DefaultConfig(setting_field="EXPIRE_AFTER", default_value=None),
+            'max_retries': DefaultConfig(setting_field="MAX_RETRIES", default_value=2)
         }
 
     def get(self, field_name, raise_exception=True, default_type=str):
         attr = getattr(
             settings,
-            self.defaults_configs[field_name][0],  # get field from settings
-            self.defaults_configs[field_name][1]  # get default value if field not defined
+            self.defaults_configs[field_name].setting_field,  # get field from settings
+            self.defaults_configs[field_name].default_value  # get default value if field not defined
         )
-        if (attr == '' or attr is None or not isinstance(field_name, default_type)) and raise_exception:
+        if not attr and not isinstance(field_name, default_type) and raise_exception:
             if field_name == 'verification_success_template' and attr is None:
                 return None
             raise AttributeError
