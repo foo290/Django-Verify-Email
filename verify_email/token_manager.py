@@ -72,7 +72,7 @@ class TokenManager(signing.TimestampSigner):
                 unit = 's'
                 interval += unit
             else:
-                unit = unit[0]
+                unit = unit[0]  # TODO: look into this, this might cook my ass in some cases
             try:
                 digit_time = int(interval[:-1])
                 if digit_time <= 0:
@@ -103,7 +103,7 @@ class TokenManager(signing.TimestampSigner):
             return int(user.linkcounter.sent_count)
         except Exception as e:
             logger.error(e)
-            return False
+            return False  # todo: remove this shit!
 
     @staticmethod
     def __increment_sent_counter(user):
@@ -210,31 +210,32 @@ class TokenManager(signing.TimestampSigner):
         decoded_email = self.perform_decoding(encoded_email)
         decoded_token = self.perform_decoding(encoded_token)
 
-        if decoded_email and decoded_token:
-            if self.max_age:
-                alive_time = self.__get_seconds(self.max_age)
-                try:
-                    user_token = self.unsign(decoded_token, alive_time)
-                    user = self.get_user_by_token(decoded_email, user_token)
-                    if user:
-                        return user
-                    return False
-
-                except signing.SignatureExpired:
-                    logger.warning(f'\n{"~" * 40}\n[WARNING] : The link is Expired!\n{"~" * 40}\n')
-                    user = self.get_user_by_token(decoded_email, self.__decrypt_expired_user(decoded_token))
-                    if not self.__verify_attempts(user):
-                        raise MaxRetriesExceeded()
-                    raise
-
-                except signing.BadSignature:
-                    logger.critical(
-                        f'\n{"~" * 40}\n[CRITICAL] : X_x --> CAUTION : LINK SIGNATURE ALTERED! <-- x_X\n{"~" * 40}\n'
-                    )
-                    raise
-            else:
-                user = self.get_user_by_token(decoded_email, decoded_token)
-                return user if user else False
-        else:
+        if not decoded_email or not decoded_token:
             logger.error(f'\n{"~" * 40}\nError occurred in decoding the link!\n{"~" * 40}\n')
             return False
+
+        if self.max_age:
+            alive_time = self.__get_seconds(self.max_age)
+            try:
+                user_token = self.unsign(decoded_token, alive_time)
+                user = self.get_user_by_token(decoded_email, user_token)
+                if user:
+                    return user
+                return False
+
+            except signing.SignatureExpired:
+                logger.warning(f'\n{"~" * 40}\n[WARNING] : The link is Expired!\n{"~" * 40}\n')
+                user = self.get_user_by_token(decoded_email, self.__decrypt_expired_user(decoded_token))
+                if not self.__verify_attempts(user):
+                    raise MaxRetriesExceeded()
+                raise
+
+            except signing.BadSignature:
+                logger.critical(
+                    f'\n{"~" * 40}\n[CRITICAL] : X_x --> CAUTION : LINK SIGNATURE ALTERED! <-- x_X\n{"~" * 40}\n'
+                )
+                raise
+        else:
+            user = self.get_user_by_token(decoded_email, decoded_token)
+            return user if user else False
+
