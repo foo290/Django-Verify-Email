@@ -25,10 +25,10 @@ __all__ = ["TokenManager"]
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
+@dataclass
 class GeneralConfig:
     settings: GetFieldFromSettings = GetFieldFromSettings()
-    max_age: int = settings.get("max_age", raise_exception=False)
+    max_age: str = settings.get("max_age", raise_exception=False)
     max_retries: int = settings.get("max_retries") + 1
     time_units: List = field(default_factory=lambda: ["s", "m", "h", "d"])
 
@@ -47,7 +47,7 @@ class SafeURL:
             return False
 
 
-@dataclass(frozen=True)
+@dataclass
 class ActivationLinkManager(GeneralConfig):
 
     @staticmethod
@@ -131,8 +131,8 @@ class ActivationLinkManager(GeneralConfig):
             )
 
 
-@dataclass(frozen=True)
-class TokenManager(GeneralConfig, signing.TimestampSigner):
+@dataclass
+class TokenManager(signing.TimestampSigner, GeneralConfig):
     """
     This class is responsible for creating encrypted links / verifying them / applying several checks for token lifetime
     and generating new verification links on request.
@@ -157,11 +157,11 @@ class TokenManager(GeneralConfig, signing.TimestampSigner):
     link_manager: ActivationLinkManager = ActivationLinkManager()
 
     def __post_init__(self):
-        key = self.settings.get("key", raise_exception=False)
-        salt = self.settings.get("salt", raise_exception=False)
-        sep = self.settings.get("sep", raise_exception=False)
+        self.key = self.settings.get("key", raise_exception=False)
+        self.salt = self.settings.get("salt", raise_exception=False)
+        self.sep = self.settings.get("sep", raise_exception=False)
 
-        super().__init__(key, sep, salt)
+        super().__init__()
 
     @staticmethod
     def is_token_valid(plain_email, encrypted_user_token) -> bool:

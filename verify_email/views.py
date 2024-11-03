@@ -39,7 +39,7 @@ new_email_sent_template = pkg_configs.get("new_email_sent_template")
 
 
 @require_GET
-def verify_user_and_activate(request, user_email, user_token):
+def verify_and_activate_user(request, user_email, user_token):
     """
     A view function already implemented for you so you don't have to implement any function for verification
     as this function will be automatically be called when user clicks on verification link.
@@ -70,6 +70,7 @@ def verify_user_and_activate(request, user_email, user_token):
         )
         return render(
             request,
+            status=401,
             template_name=failed_template,
             context={
                 "msg": failed_msg,
@@ -80,6 +81,7 @@ def verify_user_and_activate(request, user_email, user_token):
     except SignatureExpired:
         return render(
             request,
+            status=401,
             template_name=link_expired_template,
             context={
                 "msg": "The link has lived its life :( Request a new one!",
@@ -91,6 +93,7 @@ def verify_user_and_activate(request, user_email, user_token):
     except BadSignature:
         return render(
             request,
+            status=401,
             template_name=failed_template,
             context={
                 "msg": "This link was modified before verification.",
@@ -101,6 +104,7 @@ def verify_user_and_activate(request, user_email, user_token):
     except MaxRetriesExceeded:
         return render(
             request,
+            status=401,
             template_name=failed_template,
             context={
                 "msg": "You have exceeded the maximum verification requests! Contact admin.",
@@ -110,6 +114,7 @@ def verify_user_and_activate(request, user_email, user_token):
     except InvalidToken:
         return render(
             request,
+            status=401,
             template_name=failed_template,
             context={
                 "msg": "This link is invalid or been used already, we cannot verify using this link.",
@@ -119,10 +124,29 @@ def verify_user_and_activate(request, user_email, user_token):
     except UserNotFound:
         raise Http404("404 User not found")
 
+    except Exception as err:
+        logger.exception(err)
+        flash_msg = "Something went wrong during this process!"
+        if debug:
+            flash_msg = f"""{flash_msg} Developer should look into this.
+            Error Details: {err}
+            (You are seeing error details because app is running in debug mode)
+            """
+        return render(
+            request,
+            status=403,
+            template_name=failed_template,
+            context={
+                "msg": flash_msg,
+                "status": "Failed!",
+            },
+        )
 
-def request_new_link(request, useremail=None, usertoken=None):
+
+
+def request_new_link(request, user_email=None, user_token=None):
     try:
-        if useremail is None or usertoken is None:
+        if user_email is None or user_token is None:
             # request came from re-request email page
             if request.method == "POST":
                 form = RequestNewVerificationEmail(request.POST)  # do not inflate data
@@ -157,7 +181,7 @@ def request_new_link(request, useremail=None, usertoken=None):
         else:
             # request came from  previously sent link
             status = ActivationMailManager.resend_verification_link(
-                request, useremail, token=usertoken
+                request, user_email, token=user_token
             )
             if status:
                 return render(
@@ -192,6 +216,7 @@ def request_new_link(request, useremail=None, usertoken=None):
         )
         return render(
             request,
+            status=403,
             template_name=failed_template,
             context={
                 "msg": "You have exceeded the maximum verification requests! Contact admin.",
@@ -210,6 +235,7 @@ def request_new_link(request, useremail=None, usertoken=None):
     except UserAlreadyActive:
         return render(
             request,
+            status=403,
             template_name=failed_template,
             context={
                 "msg": "This user's account is already active",
@@ -226,6 +252,7 @@ def request_new_link(request, useremail=None, usertoken=None):
             """
         return render(
             request,
+            status=403,
             template_name=failed_template,
             context={
                 "msg": flash_msg,
