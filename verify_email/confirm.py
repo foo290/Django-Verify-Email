@@ -2,7 +2,9 @@ import logging
 from dataclasses import dataclass
 
 from .token_manager import TokenManager
+from .custom_types import User
 from django.utils import timezone
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ class UserActivationProcess:
     token_manager: TokenManager = TokenManager()
 
     @classmethod
-    def activate_user(cls, encoded_email: str, encoded_token: str) -> None:
+    def activate_user(cls, encoded_email: str, encoded_token: str) -> User:
         """
         Steps to activate a user account:
         1. Verify the token.
@@ -74,6 +76,7 @@ class UserActivationProcess:
         self = cls()  # Consider if instantiation is necessary here
         try:
             # Verify token and retrieve user object
+            # this will return inactive user
             user = self.token_manager.decrypt_token_and_get_user(
                 encoded_email, encoded_token
             )
@@ -82,6 +85,7 @@ class UserActivationProcess:
             user.is_active = True
             user.last_login = timezone.now()
             user.save()
+            return user
         except Exception as err:
             logger.exception(err)
             # Perform any necessary cleanup if required

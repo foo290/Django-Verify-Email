@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+import logging
+
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -5,61 +8,88 @@ from django.utils.html import strip_tags
 from .app_configurations import GetFieldFromSettings
 from .errors import InvalidTokenOrEmail
 from .token_manager import TokenManager
+from .custom_types import User
+
+logger = logging.getLogger(__name__)
 
 
-class _VerifyEmail:
+@dataclass(frozen=True)
+class ActivationMailManager:
     """
     This class does two things:
     1. set each user as inactive and saves it
     2. sends the email to user with that link.
     """
 
-    def __init__(self):
-        self.settings = GetFieldFromSettings()
-        self.token_manager = TokenManager()
+    token_manager: TokenManager = TokenManager()
+    settings: GetFieldFromSettings = GetFieldFromSettings()
+
+    def _generate_verification_url(
+        self, inactive_user: User, user_email: str, request=None
+    ):
+        token = self.token_manager.generate_token_for_user(inactive_user)
+        link = (
+            self.token_manager.link_manager.generate_link(token, user_email)
+            if not request
+            else self.token_manager.link_manager.get_absolute_verification_url(
+                request, token, user_email
+            )
+        )
+        return link
 
     # Private :
-    def __send_email(self, msg, useremail):
-        subject = self.settings.get('subject')
+    def _send_email(self, msg, useremail):
+        subject = self.settings.get("subject")
         send_mail(
-            subject, strip_tags(msg),
-            from_email=self.settings.get('from_alias'),
-            recipient_list=[useremail], html_message=msg
+            subject,
+            strip_tags(msg),
+            from_email=self.settings.get("from_alias"),
+            recipient_list=[useremail],
+            html_message=msg,
         )
 
     # Public :
-    def send_verification_link(self, request, inactive_user=None, form=None):
-        
+    @classmethod
+    def send_verification_link(cls, inactive_user=None, form=None, request=None):
+        self = cls()
+
         if form:
             inactive_user = form.save(commit=False)
-        
+
         inactive_user.is_active = False
         inactive_user.save()
 
         try:
-            
-            useremail = form.cleaned_data.get(self.settings.get('email_field_name')) if form else inactive_user.email
+
+            useremail = (
+                form.cleaned_data.get(self.settings.get("email_field_name"))
+                if form
+                else inactive_user.email
+            )
             if not useremail:
                 raise KeyError(
                     'No key named "email" in your form. Your field should be named as email in form OR set a variable'
                     ' "EMAIL_FIELD_NAME" with the name of current field in settings.py if you want to use current name '
-                    'as email field.'
+                    "as email field."
                 )
 
-            verification_url = self.token_manager.generate_link(request, inactive_user, useremail)
+            verification_url = self._generate_verification_url(
+                inactive_user, useremail, request=request
+            )
             msg = render_to_string(
-                self.settings.get('html_message_template', raise_exception=True),
-                {"link": verification_url, "inactive_user": inactive_user}, 
-                request=request
+                self.settings.get("html_message_template", raise_exception=True),
+                {"link": verification_url, "inactive_user": inactive_user},
+                request=request,
             )
 
-            self.__send_email(msg, useremail)
+            self._send_email(msg, useremail)
             return inactive_user
         except Exception:
             inactive_user.delete()
             raise
 
-    def resend_verification_link(self, request, email, **kwargs):
+    @classmethod
+    def resend_verification_link(cls, request, email, **kwargs):
         """
         This method needs the previously sent link to get encoded email and token from that.
         Exceptions Raised
@@ -67,37 +97,48 @@ class _VerifyEmail:
             - UserAlreadyActive (by) get_user_by_token()
             - MaxRetryExceeded  (by) request_new_link()
             - InvalidTokenOrEmail
-        
+
         These exception should be handled in caller function.
         """
-        inactive_user = kwargs.get('user')
-        user_encoded_token = kwargs.get('token')
-        encoded = kwargs.get('encoded', True)
+        self = cls()
 
-        if encoded:
-            decoded_encrypted_user_token = self.token_manager.perform_decoding(user_encoded_token)
-            email = self.token_manager.perform_decoding(email)
-            inactive_user = self.token_manager.get_user_by_token(email, decoded_encrypted_user_token)
+        try:
+            inactive_user = kwargs.get("user")
+            user_encoded_token = kwargs.get("token")
+            encoded = kwargs.get("encoded", True)
 
-        if not inactive_user or not email:
-            raise InvalidTokenOrEmail(f'Either token or email is invalid. user: {inactive_user}, email: {email}')
+            if not inactive_user or not email:
+                raise InvalidTokenOrEmail(
+                    f"Either token or email is invalid. user: {inactive_user}, email: {email}"
+                )
 
-        # At this point, we have decoded email(if it was encoded), and inactive_user, and we can request new link
-        link = self.token_manager.request_new_link(request, inactive_user, email)
-        msg = render_to_string(
-            self.settings.get('html_message_template', raise_exception=True),
-            {"link": link}, request=request
-        )
-        self.__send_email(msg, email)
-        return True
+            if encoded:
+                decoded_enc_user_token = (
+                    self.token_manager.safe_url_encoder.perform_decoding(
+                        user_encoded_token
+                    )
+                )
+                decoded_email = self.token_manager.safe_url_encoder.perform_decoding(
+                    email
+                )
+                inactive_user = self.token_manager.get_user_by_token(
+                    decoded_email, decoded_enc_user_token
+                )
 
-
-
-#  These is supposed to be called outside of this module
-def send_verification_email(request, form):
-    return _VerifyEmail().send_verification_link(request, form)
-
-
-#  These is supposed to be called outside of this module
-def resend_verification_email(request, email, **kwargs):
-    return _VerifyEmail().resend_verification_link(request, email, **kwargs)
+            # At this point, we have decoded email(if it was encoded), and inactive_user, and we can request new link
+            new_token = self.token_manager.generate_token_for_user(inactive_user)
+            link = self.token_manager.link_manager.request_new_link(
+                request, inactive_user, new_token, email
+            )
+            msg = render_to_string(
+                self.settings.get("html_message_template", raise_exception=True),
+                {"link": link},
+                request=request,
+            )
+            self._send_email(msg, email)
+            return True
+        except Exception as err:
+            logger.error(
+                f"Error occurred during re sending the email with verification link: {err}"
+            )
+            raise err

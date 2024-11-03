@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from django.conf import settings
-from verify_email.interface import DefaultConfig
+from .interface import DefaultConfig
 
 
 @dataclass
@@ -23,7 +23,7 @@ class GetFieldFromSettings:
 
     def __post_init__(self):
         self.defaults_configs = {
-            "debug_settings": DefaultConfig(setting_field="DEBUG", default_value=False),
+            "debug": DefaultConfig(setting_field="DEBUG", default_value=False),
             "subject": DefaultConfig(
                 setting_field="SUBJECT", default_value="Email Verification Mail"
             ),
@@ -83,7 +83,9 @@ class GetFieldFromSettings:
         attr = getattr(
             settings,
             self.defaults_configs[field_name].setting_field,  # get field from settings
-            self.defaults_configs[field_name].default_value,  # get default value if field not defined
+            self.defaults_configs[
+                field_name
+            ].default_value,  # get default value if field not defined
         )
         if not attr and not isinstance(field_name, default_type) and raise_exception:
             if field_name == "verification_success_template" and attr is None:

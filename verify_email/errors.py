@@ -26,3 +26,8 @@ class InvalidTokenOrEmail(Exception):
 class WrongTimeInterval(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+
+class DecodingFailed(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
