@@ -27,10 +27,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class GeneralConfig:
-    settings: GetFieldFromSettings = GetFieldFromSettings()
-    max_age: str = settings.get("max_age", raise_exception=False)
-    max_retries: int = settings.get("max_retries") + 1
-    time_units: List = field(default_factory=lambda: ["s", "m", "h", "d"])
+    settings: GetFieldFromSettings = field(default_factory=GetFieldFromSettings)
+    max_age: str = field(init=False)
+    max_retries: int = field(init=False)
+    time_units: List[str] = field(default_factory=lambda: ["s", "m", "h", "d"])
+
+    def __post_init__(self):
+        self.max_age = self.settings.get("max_age", raise_exception=False)
+        self.max_retries = self.settings.get("max_retries") + 1
 
 
 @dataclass
