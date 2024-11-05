@@ -1,5 +1,5 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .token_manager import TokenManager
 from .custom_types import User
@@ -35,7 +35,7 @@ class UserActivationProcess:
     - InvalidToken: Raised when the provided token is invalid.
     """
 
-    token_manager: TokenManager = TokenManager()
+    token_manager: TokenManager = field(default_factory=TokenManager)
 
     @classmethod
     def activate_user(cls, encoded_email: str, encoded_token: str) -> User:
