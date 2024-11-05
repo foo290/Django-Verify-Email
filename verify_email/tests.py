@@ -50,7 +50,7 @@ class VerifyEmailTests(TestCase):
 
     def test_process(self):
         user_token = TokenManager().generate_token_for_user(self.user)
-        time.sleep(2)
+        time.sleep(1)
 
         link = ActivationLinkManager.generate_link(user_token, self.user.email)
         full_url = f"http://testserver{link}"
@@ -58,10 +58,10 @@ class VerifyEmailTests(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_timestamp_invalid_link(self):
-        user_token = TokenManager(max_age='2s').generate_token_for_user(self.user)
+        user_token = TokenManager().generate_token_for_user(self.user)
         time.sleep(3)
 
-        link = ActivationLinkManager(max_age='2s').generate_link(user_token, self.user.email)
+        link = ActivationLinkManager().generate_link(user_token, self.user.email)
         full_url = f"http://testserver{link}"
         resp = self.client.get(full_url)
         self.assertEquals(resp.status_code, 401)

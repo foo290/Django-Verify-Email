@@ -28,8 +28,6 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GeneralConfig:
     settings: GetFieldFromSettings = field(default_factory=GetFieldFromSettings)
-    max_age: str = field(init=False)
-    max_retries: int = field(init=False)
     time_units: List[str] = field(default_factory=lambda: ["s", "m", "h", "d"])
 
     def __post_init__(self):
@@ -161,11 +159,13 @@ class TokenManager(signing.TimestampSigner, GeneralConfig):
     link_manager: ActivationLinkManager = ActivationLinkManager()
 
     def __post_init__(self):
+        GeneralConfig.__post_init__(self)
+
         self.key = self.settings.get("key", raise_exception=False)
         self.salt = self.settings.get("salt", raise_exception=False)
         self.sep = self.settings.get("sep", raise_exception=False)
 
-        super().__init__()
+        signing.TimestampSigner.__init__(self, key=self.key, sep=self.sep, salt=self.salt)
 
     @staticmethod
     def is_token_valid(plain_email, encrypted_user_token) -> bool:
