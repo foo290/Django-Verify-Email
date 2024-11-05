@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 
 from django.core.mail import send_mail
@@ -21,8 +21,8 @@ class ActivationMailManager:
     2. sends the email to user with that link.
     """
 
-    token_manager: TokenManager = TokenManager()
-    settings: GetFieldFromSettings = GetFieldFromSettings()
+    token_manager: TokenManager = field(default_factory=TokenManager)
+    settings: GetFieldFromSettings = field(default_factory=GetFieldFromSettings)
 
     def _generate_verification_url(
         self, inactive_user: User, user_email: str, request=None

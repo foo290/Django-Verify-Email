@@ -155,8 +155,8 @@ class TokenManager(signing.TimestampSigner, GeneralConfig):
 
     """
 
-    safe_url_encoder: SafeURL = SafeURL()
-    link_manager: ActivationLinkManager = ActivationLinkManager()
+    safe_url_encoder: SafeURL = field(default_factory=SafeURL)
+    link_manager: ActivationLinkManager = field(default_factory=ActivationLinkManager)
 
     def __post_init__(self):
         GeneralConfig.__post_init__(self)
